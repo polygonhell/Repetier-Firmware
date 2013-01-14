@@ -65,6 +65,10 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 #define MOTHERBOARD 301
 #include "pins.h"
 
+// Uncomment the following line if oyu are using arduino compatible firmware made for Arduino version earlier then 1.0
+// If it is incompatible you will get compiler errors about write functions not beeing compatible!
+//#define COMPAT_PRE1
+
 /* Define the type of axis movements needed for your printer. The typical case
 is a full cartesian system where x, y and z moves are handled by seperate motors.
 
@@ -252,6 +256,11 @@ That way you can execute some mechanical components needed for extruder selectio
 The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT0_SELECT_COMMANDS "M120 S5 P5\nM117 Extruder 1"
 #define EXT0_DESELECT_COMMANDS ""
+/** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
+#define EXT0_EXTRUDER_COOLER_PIN -1
+/** PWM speed for the cooler fan. 0=off 255=full speed */
+#define EXT0_EXTRUDER_COOLER_SPEED 255
+
 
 // =========================== Configuration for second extruder ========================
 #define EXT1_X_OFFSET 0
@@ -346,6 +355,10 @@ L is the linear factor and seems to be working better then the quadratic depende
 #define EXT1_WAIT_RETRACT_UNITS	40
 #define EXT1_SELECT_COMMANDS "M120 S5 P15\nM117 Extruder 2"
 #define EXT1_DESELECT_COMMANDS ""
+/** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
+#define EXT1_EXTRUDER_COOLER_PIN -1
+/** PWM speed for the cooler fan. 0=off 255=full speed */
+#define EXT1_EXTRUDER_COOLER_SPEED 255
 
 /** If enabled you can select the distance your filament gets retracted during a
 M140 command, after a given temperature is reached. */
@@ -897,7 +910,7 @@ If a travel move is shorter than this distance, no retraction will occur. This i
 retraction with infill, where the angle to the perimeter needs a short stop. Unit is mm.
  Overridden if EEPROM activated.
 */
-#define OPS_MIN_DISTANCE 2
+#define OPS_MIN_DISTANCE 0.8
 
 /** \brief Move printhead only after x% of retract distance have been retracted.
 
@@ -906,7 +919,7 @@ retraction with infill, where the angle to the perimeter needs a short stop. Uni
 /** \brief Retraction distance in mm. If you want to enable OPS only sometimes, compile with
 OPS support and set retraction distance to 0. If you set it to e.g. 3 in your eeprom settings it is enabled.
  Overridden if EEPROM activated.*/
-#define OPS_RETRACT_DISTANCE 6
+#define OPS_RETRACT_DISTANCE 1.5
 
 /** \brief Backslash produced by extruder reversal
 
@@ -1004,11 +1017,11 @@ IMPORTANT: With mode <>0 some changes in configuration.h are not set any more, a
 
 /** Set to false to disable SD support: */
 #ifndef SDSUPPORT  // Some boards have sd support on board. These define the values already in pins.h
-#define SDSUPPORT true
+#define SDSUPPORT false
 /** If set to false all files with longer names then 8.3 or having a tilde in the name will be hidden */
 #define SD_ALLOW_LONG_NAMES false
 // Uncomment to enable or changed card detection pin. With card detection the card is mounted on insertion.
-#define SDCARDDETECT 49
+#define SDCARDDETECT -1
 // Change to true if you get a inserted message on removal. 
 #define SDCARDDETECTINVERTED false
 #endif

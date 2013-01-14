@@ -24,7 +24,7 @@
 
 #include <avr/io.h>
 
-#define REPETIER_VERSION "0.80dev"
+#define REPETIER_VERSION "0.80"
 
 // ##########################################################################################
 // ##                                  Debug configuration                                 ##
@@ -121,6 +121,7 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define EXT0_ANALOG_INPUTS 1
 #define EXT0_SENSOR_INDEX 0
 #define EXT0_ANALOG_CHANNEL EXT0_TEMPSENSOR_PIN
+#undef KOMMA
 #define KOMMA ,
 #else
 #define EXT0_ANALOG_INPUTS 0
@@ -132,6 +133,7 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define EXT1_ANALOG_INPUTS 1
 #define EXT1_SENSOR_INDEX EXT0_ANALOG_INPUTS
 #define EXT1_ANALOG_CHANNEL KOMMA EXT1_TEMPSENSOR_PIN
+#undef KOMMA
 #define KOMMA ,
 #else
 #define EXT1_ANALOG_INPUTS 0
@@ -143,6 +145,7 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define EXT2_ANALOG_INPUTS 1
 #define EXT2_SENSOR_INDEX EXT0_ANALOG_INPUTS+EXT1_ANALOG_INPUTS
 #define EXT2_ANALOG_CHANNEL KOMMA EXT2_TEMPSENSOR_PIN
+#undef KOMMA
 #define KOMMA ,
 #else
 #define EXT2_ANALOG_INPUTS 0
@@ -154,6 +157,7 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define EXT3_ANALOG_INPUTS 1
 #define EXT3_SENSOR_INDEX EXT0_ANALOG_INPUTS+EXT1_ANALOG_INPUTS+EXT2_ANALOG_INPUTS
 #define EXT3_ANALOG_CHANNEL KOMMA EXT3_TEMPSENSOR_PIN
+#undef KOMMA
 #define KOMMA ,
 #else
 #define EXT3_ANALOG_INPUTS 0
@@ -165,6 +169,7 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define EXT4_ANALOG_INPUTS 1
 #define EXT4_SENSOR_INDEX EXT0_ANALOG_INPUTS+EXT1_ANALOG_INPUTS+EXT2_ANALOG_INPUTS+EXT3_ANALOG_INPUTS
 #define EXT4_ANALOG_CHANNEL KOMMA EXT4_TEMPSENSOR_PIN
+#undef KOMMA
 #define KOMMA ,
 #else
 #define EXT4_ANALOG_INPUTS 0
@@ -176,6 +181,7 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define EXT5_ANALOG_INPUTS 1
 #define EXT5_SENSOR_INDEX EXT0_ANALOG_INPUTS+EXT1_ANALOG_INPUTS+EXT2_ANALOG_INPUTS+EXT3_ANALOG_INPUTS+EXT4_ANALOG_INPUTS
 #define EXT5_ANALOG_CHANNEL KOMMA EXT5_TEMPSENSOR_PIN
+#undef KOMMA
 #define KOMMA ,
 #else
 #define EXT5_ANALOG_INPUTS 0
@@ -187,6 +193,7 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define BED_ANALOG_INPUTS 1
 #define BED_SENSOR_INDEX EXT0_ANALOG_INPUTS+EXT1_ANALOG_INPUTS+EXT2_ANALOG_INPUTS+EXT3_ANALOG_INPUTS+EXT4_ANALOG_INPUTS+EXT5_ANALOG_INPUTS
 #define BED_ANALOG_CHANNEL KOMMA  HEATED_BED_SENSOR_PIN
+#undef KOMMA
 #define KOMMA ,
 #else
 #define BED_ANALOG_INPUTS 0
@@ -233,6 +240,10 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define	SET_INPUT(IO)  pinMode(IO, INPUT)
 #define	SET_OUTPUT(IO)  pinMode(IO, OUTPUT)
 #endif
+#define SD_MAX_FOLDER_DEPTH 2
+
+#include "ui.h"
+
 #ifndef SDSUPPORT
 #define SDSUPPORT false
 #endif
@@ -343,6 +354,8 @@ typedef struct { // Size: 12*1 Byte+12*4 Byte+4*2Byte = 68 Byte
   TemperatureController tempControl;
   const char * PROGMEM selectCommands;
   const char * PROGMEM deselectCommands;
+  byte coolerSpeed; ///< Speed to use when enabled
+  byte coolerPWM; ///< current PWM setting
 } Extruder;
 
 extern const uint8 osAnalogInputChannels[] PROGMEM;
@@ -844,7 +857,6 @@ extern byte autotuneIndex;
 
 #if SDSUPPORT
 
-#define SD_MAX_FOLDER_DEPTH 2
 
 #include "SdFat.h"
 

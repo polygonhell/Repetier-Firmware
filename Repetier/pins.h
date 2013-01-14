@@ -540,8 +540,12 @@ STEPPER_CURRENT_CONTROL
     #define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
     #define E1_PINS
     
-    #define SCL 16
-    #define SDA 17
+    #define SCK_PIN          7
+    #define MISO_PIN         6
+    #define MOSI_PIN         5
+
+   // #define SCL 16
+   // #define SDA 17
 
 #endif
 /****************************************************************************************
@@ -608,6 +612,7 @@ STEPPER_CURRENT_CONTROL
     #define TEMP_1_PIN          6   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
     #define SDPOWER          -1
     #define SDSS          31
+    
     #define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
     #define E1_PINS
 
@@ -676,6 +681,10 @@ STEPPER_CURRENT_CONTROL
     #define TX_ENABLE_PIN	12
     #define RX_ENABLE_PIN	13
 
+#define SCK_PIN          7
+#define MISO_PIN         6
+#define MOSI_PIN         5
+
 #endif
 /****************************************************************************************
 * Gen7 1.4.1 pin assignment
@@ -689,53 +698,58 @@ STEPPER_CURRENT_CONTROL
 #endif
 
 //x axis pins
-    #define X_STEP_PIN      29
-    #define X_DIR_PIN       28
-    #define X_ENABLE_PIN    25
-    #define X_MIN_PIN       0
-    #define X_MAX_PIN       -1
+  #define X_STEP_PIN      29
+  #define X_DIR_PIN       28
+  #define X_ENABLE_PIN    25
+  #define X_MIN_PIN       0
+  #define X_MAX_PIN       -1
     
-    //y axis pins
-    #define Y_STEP_PIN      27
-    #define Y_DIR_PIN       26
-    #define Y_ENABLE_PIN    25
-    #define Y_MIN_PIN       1
-    #define Y_MAX_PIN       -1
+  //y axis pins
+  #define Y_STEP_PIN      27
+  #define Y_DIR_PIN       26
+  #define Y_ENABLE_PIN    25
+  #define Y_MIN_PIN       1
+  #define Y_MAX_PIN       -1
     
-    //z axis pins
-    #define Z_STEP_PIN      23
-    #define Z_DIR_PIN       22
-    #define Z_ENABLE_PIN    25
-    #define Z_MIN_PIN       2
-    #define Z_MAX_PIN       -1
+  //z axis pins
+  #define Z_STEP_PIN      23
+  #define Z_DIR_PIN       22
+  #define Z_ENABLE_PIN    25
+  #define Z_MIN_PIN       2
+  #define Z_MAX_PIN       -1
     
-    //extruder pins
-    #define E0_STEP_PIN      19     
-    #define E0_DIR_PIN       18     
-    #define E0_ENABLE_PIN    25     
-    #define TEMP_0_PIN      0 
-    #define TEMP_1_PIN      1    
-    #define HEATER_0_PIN    4    
-    #define HEATER_1_PIN    3    
+  //extruder pins
+  #define E0_STEP_PIN      19     
+  #define E0_DIR_PIN       18     
+  #define E0_ENABLE_PIN    25     
+  #define TEMP_0_PIN      0 
+  #define TEMP_1_PIN      1    
+  #define HEATER_0_PIN    4    
+  #define HEATER_1_PIN    3    
     
     
-    #define SDPOWER          -1
-    #define SDSS          -1 // SCL pin of I2C header
-    #define LED_PIN         -1    
+  #define SDPOWER          -1
+  #define SDSS            -1 
+  #define LED_PIN         -1    
        
-    #define FAN_PIN         -1    
-    #define PS_ON_PIN       15    
+  #define FAN_PIN         -1    
+  #define PS_ON_PIN       15    
     //our pin for debugging.
     
-    #define DEBUG_PIN        0
+  #define DEBUG_PIN        0
     
     //our RS485 pins
-    #define TX_ENABLE_PIN	12
-    #define RX_ENABLE_PIN	13
+  #define TX_ENABLE_PIN	12
+  #define RX_ENABLE_PIN	13
 
-    #define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
-    #define E1_PINS
+  #define SDPOWER          -1
+  #define SDSS          -1
 
+  #define SCK_PIN          7
+  #define MISO_PIN         6
+  #define MOSI_PIN         5
+  #define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
+  #define E1_PINS
 #endif
 
 /****************************************************************************************
@@ -1048,7 +1062,7 @@ STEPPER_CURRENT_CONTROL
 #define X_STEP_PIN     37
 #define X_DIR_PIN      48
 #define X_MIN_PIN      12
-#define X_MAX_PIN      24 // was 19
+#define X_MAX_PIN      24
 #define X_ENABLE_PIN   29
 #define X_MS1_PIN      40
 #define X_MS2_PIN      41
@@ -1056,7 +1070,7 @@ STEPPER_CURRENT_CONTROL
 #define Y_STEP_PIN     36
 #define Y_DIR_PIN      49
 #define Y_MIN_PIN      11
-#define Y_MAX_PIN      23 //was 18
+#define Y_MAX_PIN      23
 #define Y_ENABLE_PIN   28
 #define Y_MS1_PIN      69
 #define Y_MS2_PIN      39
@@ -1064,7 +1078,7 @@ STEPPER_CURRENT_CONTROL
 #define Z_STEP_PIN     35
 #define Z_DIR_PIN      47
 #define Z_MIN_PIN      10
-#define Z_MAX_PIN      30 // was 15
+#define Z_MAX_PIN      30
 #define Z_ENABLE_PIN   27
 #define Z_MS1_PIN      68
 #define Z_MS2_PIN      67
