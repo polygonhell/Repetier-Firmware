@@ -698,7 +698,7 @@ on this endstop.
 #if DRIVE_SYSTEM==3
 /** \brief Delta rod length
 */
-#define DELTA_DIAGONAL_ROD 269.0 // mm
+#define DELTA_DIAGONAL_ROD 267.5  //269.0 // mm
 
 /** \brief Number of segments to generate for delta conversions per second of move
 */
@@ -719,7 +719,7 @@ on this endstop.
 
 /**  \brief Horizontal distance bridged by the diagonal push rod when the end effector is in the center. It is pretty close to 50% of the push rod length (250 mm).
 */
-#define DELTA_RADIUS (PRINTER_RADIUS-END_EFFECTOR_HORIZONTAL_OFFSET-CARRIAGE_HORIZONTAL_OFFSET)
+#define DELTA_RADIUS (PRINTER_RADIUS-END_EFFECTOR_HORIZONTAL_OFFSET-CARRIAGE_HORIZONTAL_OFFSET+0.63)
 
 /** \brief Enable counter to count steps for Z max calculations
 */
@@ -1013,7 +1013,7 @@ IMPORTANT: With mode <>0 some changes in configuration.h are not set any more, a
 */
 #define EEPROM_MODE 1
 
-#define SDSUPPORT false
+#define SDSUPPORT true
 
 /** Set to false to disable SD support: */
 #ifndef SDSUPPORT  // Some boards have sd support on board. These define the values already in pins.h
@@ -1021,7 +1021,7 @@ IMPORTANT: With mode <>0 some changes in configuration.h are not set any more, a
 /** If set to false all files with longer names then 8.3 or having a tilde in the name will be hidden */
 #define SD_ALLOW_LONG_NAMES false
 // Uncomment to enable or changed card detection pin. With card detection the card is mounted on insertion.
-#define SDCARDDETECT -1
+#define SDCARDDETECT 81
 // Change to true if you get a inserted message on removal. 
 #define SDCARDDETECTINVERTED false
 #endif
@@ -1052,7 +1052,7 @@ The following settings override uiconfig.h!
 3 = Adafruit RGB controller
 4 = Foltyn 3DMaster with display attached
 */
-#define FEATURE_CONTROLLER 0
+#define FEATURE_CONTROLLER 1
 
 /**
 Select the language to use.
@@ -1060,10 +1060,10 @@ Select the language to use.
 1 = german
 2 = dutch
 */
-#define UI_LANGUAGE 1
+#define UI_LANGUAGE 0
 
 // This is line 2 of the status display at startup
-#define UI_VERSION_STRING2 "Mendel"
+#define UI_VERSION_STRING2 "MAX"
 
 /** How many ms should a single page be shown, until it is switched to the next one.*/
 #define UI_PAGES_DURATION 4000
@@ -1109,10 +1109,10 @@ Values must be in range 1..255
 // Values used for preheat
 #define UI_SET_PRESET_HEATED_BED_TEMP_PLA 60
 #define UI_SET_PRESET_EXTRUDER_TEMP_PLA   170
-#define UI_SET_PRESET_HEATED_BED_TEMP_ABS 110
+#define UI_SET_PRESET_HEATED_BED_TEMP_ABS 100
 #define UI_SET_PRESET_EXTRUDER_TEMP_ABS   240
 // Extreme values 
-#define UI_SET_MIN_HEATED_BED_TEMP  55
+#define UI_SET_MIN_HEATED_BED_TEMP  35
 #define UI_SET_MAX_HEATED_BED_TEMP 120
 #define UI_SET_MIN_EXTRUDER_TEMP   160
 #define UI_SET_MAX_EXTRUDER_TEMP   270
