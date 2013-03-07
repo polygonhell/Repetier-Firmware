@@ -164,6 +164,7 @@ Overridden if EEPROM activated.*/
 // 2 is 200k thermistor
 // 3 is mendel-parts thermistor (EPCOS G550)
 // 4 is 10k thermistor
+// 8 is ATC Semitec 104GT-2
 // 5 is userdefined thermistor table 0
 // 6 is userdefined thermistor table 1
 // 7 is userdefined thermistor table 2
@@ -275,6 +276,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 // 5 is userdefined thermistor table 0
 // 6 is userdefined thermistor table 1
 // 7 is userdefined thermistor table 2
+// 8 is ATC Semitec 104GT-2
 // 50 is userdefined thermistor table 0 for PTC thermistors
 // 51 is userdefined thermistor table 0 for PTC thermistors
 // 52 is userdefined thermistor table 0 for PTC thermistors
@@ -465,7 +467,7 @@ for more details.
 /** Start temperature for generated thermistor table */
 #define GENERIC_THERM1_MIN_TEMP -20
 /** End Temperature for generated thermistor table */
-#define GENERIC_THERM1_MAX_TEMP 300
+#define GENERIC_THERM1_MAX_TEMP 330
 #define GENERIC_THERM1_R1 0
 #define GENERIC_THERM1_R2 4700
 
@@ -476,7 +478,7 @@ for more details.
 #define GENERIC_THERM2_T0 170
 #define GENERIC_THERM2_BETA 4036
 #define GENERIC_THERM2_MIN_TEMP -20
-#define GENERIC_THERM2_MAX_TEMP 300
+#define GENERIC_THERM2_MAX_TEMP 330
 #define GENERIC_THERM2_R1 0
 #define GENERIC_THERM2_R2 4700
 
@@ -485,7 +487,7 @@ for more details.
 #define GENERIC_THERM3_T0 170
 #define GENERIC_THERM3_BETA 4036
 #define GENERIC_THERM3_MIN_TEMP -20
-#define GENERIC_THERM3_MAX_TEMP 300
+#define GENERIC_THERM3_MAX_TEMP 330
 #define GENERIC_THERM3_R1 0
 #define GENERIC_THERM3_R2 4700
 
@@ -568,6 +570,10 @@ A good start is 30 lower then the optimal value. You need to leave room for cool
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
 #define MAXTEMP 275
+
+/** Extreme values to detect defect thermistors. */
+#define MIN_DEFECT_TEMPERATURE -10
+#define MAX_DEFECT_TEMPERATURE 300
 
 /** \brief Used reference, normally ANALOG_REF_AVCC or ANALOG_REF_AREF for experts ANALOG_REF_INT_2_56 = 2.56V and ANALOG_REF_INT_1_1=1.1V inernaly generated */
 #define ANALOG_REF ANALOG_REF_AVCC
@@ -961,7 +967,7 @@ to activate the quadratic term. Only adds lots of computations and storage usage
  Overridden if EEPROM activated.
 */
 //#define BAUDRATE 76800
-//#define BAUDRATE 57600
+//#define BAUDRATE 115200
 #define BAUDRATE 250000
 
 /**
@@ -970,6 +976,11 @@ the power will be turned on without the need to call M80 if initially started.
 */
 #define ENABLE_POWER_ON_STARTUP
 
+/**
+If you use an ATX power supply you need the power pin to work non inverting. For some speacial
+boards you might need to make it inverting.
+*/
+#define POWER_INVERTING false
 /** What shall the printer do, when it receives an M112 emergency stop signal?
  0 = Disable heaters/motors, wait for ever until someone presses reset.
  1 = restart by resetting the AVR controller. The USB connection will not reset if managed by a different chip!
@@ -1048,7 +1059,7 @@ of uiconfig.h
 1 = Manual definition of display and keys parameter in uiconfig.h
 
 The following settings override uiconfig.h!
-2 = Smartcontroller on a RAMPS from reprapdiscount
+2 = Smartcontroller from reprapdiscount on a RAMPS or RUMBA board
 3 = Adafruit RGB controller
 4 = Foltyn 3DMaster with display attached
 */
@@ -1059,6 +1070,7 @@ Select the language to use.
 0 = english
 1 = german
 2 = dutch
+3 = brazilian portuguese
 */
 #define UI_LANGUAGE 0
 
