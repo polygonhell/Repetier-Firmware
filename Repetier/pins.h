@@ -1143,7 +1143,6 @@ STEPPER_CURRENT_CONTROL
 /*****************************************************************
 * Rambo Pin Assignments
 ******************************************************************/
-
 #ifndef __AVR_ATmega2560__
 #error Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu.
 #endif
@@ -1181,6 +1180,7 @@ STEPPER_CURRENT_CONTROL
 #define HEATER_1_PIN   -1 //7
 #define TEMP_1_PIN     1
 
+
 #define HEATER_2_PIN   -1
 #define TEMP_2_PIN     -1
 
@@ -1198,6 +1198,8 @@ STEPPER_CURRENT_CONTROL
 
 #define DIGIPOTSS_PIN  38
 #define DIGIPOT_CHANNELS {4,5,3,0,1} // X Y Z E0 E1 digipot channels to stepper driver mapping
+#define STEPPER_CURRENT_CONTROL  CURRENT_CONTROL_DIGIPOT
+
 
 #define SDPOWER        -1
 #define SDSS           53

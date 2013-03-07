@@ -2151,6 +2151,8 @@ void UIDisplay::executeAction(int action) {
 #if FAN_PIN>-1
      WRITE(FAN_PIN,0);
 #endif
+      resetFunc();
+
       while(1) {}
 
       break;
