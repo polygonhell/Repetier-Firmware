@@ -605,7 +605,7 @@ on this endstop.
 
 // Set the values true where you have a hardware endstop. The Pin numbe ris taken from pins.h.
 
-#define MIN_HARDWARE_ENDSTOP_X false
+#define MIN_HARDWARE_ENDSTOP_X true
 #define MIN_HARDWARE_ENDSTOP_Y false
 #define MIN_HARDWARE_ENDSTOP_Z false
 #define MAX_HARDWARE_ENDSTOP_X true
