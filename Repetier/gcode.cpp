@@ -99,7 +99,8 @@ inline void rf_store_char(unsigned char c, ring_buffer *buffer)
   SIGNAL(USART_RX_vect)
 #elif defined(USART0_RX_vect)
   SIGNAL(USART0_RX_vect)
-#elif defined(SIG_USART0_RECV)
+#else
+#if defined(SIG_USART0_RECV)
   SIGNAL(SIG_USART0_RECV)
 #elif defined(SIG_UART0_RECV)
   SIGNAL(SIG_UART0_RECV)
@@ -107,6 +108,7 @@ inline void rf_store_char(unsigned char c, ring_buffer *buffer)
   SIGNAL(SIG_UART_RECV)
 #else
   #error "Don't know what the Data Received vector is called for the first UART"
+#endif
 #endif
   {
   #if defined(UDR0)
@@ -237,7 +239,7 @@ void RFHardwareSerial::end()
   bit_clear(*_ucsrb, _rxcie);  
   bit_clear(*_ucsrb, _udrie);
   
-  // clear any received data
+  // clear a  ny received data
   _rx_buffer->head = _rx_buffer->tail;
 }
 
@@ -529,11 +531,20 @@ void emergencyStop() {
 #if EXT0_HEATER_PIN>-1
     WRITE(EXT0_HEATER_PIN,0);
 #endif
-#if defined(EXT1_HEATER_PIN) && EXT1_HEATER_PIN>-1
+#if defined(EXT1_HEATER_PIN) && EXT1_HEATER_PIN>-1 && NUM_EXTRUDER>1
     WRITE(EXT1_HEATER_PIN,0);
 #endif
-#if defined(EXT2_HEATER_PIN) && EXT2_HEATER_PIN>-1
+#if defined(EXT2_HEATER_PIN) && EXT2_HEATER_PIN>-1 && NUM_EXTRUDER>2
     WRITE(EXT2_HEATER_PIN,0);
+#endif
+#if defined(EXT3_HEATER_PIN) && EXT3_HEATER_PIN>-1 && NUM_EXTRUDER>3
+    WRITE(EXT3_HEATER_PIN,0);
+#endif
+#if defined(EXT4_HEATER_PIN) && EXT4_HEATER_PIN>-1 && NUM_EXTRUDER>4
+    WRITE(EXT4_HEATER_PIN,0);
+#endif
+#if defined(EXT5_HEATER_PIN) && EXT5_HEATER_PIN>-1 && NUM_EXTRUDER>5
+    WRITE(EXT5_HEATER_PIN,0);
 #endif
 #if FAN_PIN>-1
     WRITE(FAN_PIN,0);
@@ -650,7 +661,7 @@ void gcode_execute_PString(PGM_P cmd) {
     }
     buf[buflen]=0;
     // Send command into command buffer
-    if(gcode_parse_ascii(&code,(char *)buf) && (code.params & 518)) { // Success
+    if(gcode_parse_ascii(&code,(char *)buf,false) && (code.params & 518)) { // Success
       process_command(&code,false);
       defaultLoopActions();
     }
@@ -716,7 +727,7 @@ void gcode_read_serial() {
           continue;
         }
         act = &gcode_buffer[gcode_windex];
-        if(gcode_parse_ascii(act,(char *)gcode_transbuffer)) { // Success
+        if(gcode_parse_ascii(act,(char *)gcode_transbuffer,true)) { // Success
           gcode_checkinsert(act);
         } else {
           gcode_resend();
@@ -768,7 +779,7 @@ void gcode_read_serial() {
           continue;
         }
         act = &gcode_buffer[gcode_windex];
-        if(gcode_parse_ascii(act,(char *)gcode_transbuffer)) { // Success
+        if(gcode_parse_ascii(act,(char *)gcode_transbuffer,false)) { // Success
           gcode_silent_insert();
         }
         gcode_wpos = 0;
@@ -858,7 +869,7 @@ inline long gcode_value_long(char *s) { return (strtol(s, NULL, 10)); }
 /**
   Converts a ascii GCode line into a GCode structure.
 */
-bool gcode_parse_ascii(GCode *code,char *line) {
+bool gcode_parse_ascii(GCode *code,char *line,bool fromSerial) {
   bool has_checksum = false;
   char *pos;
   code->params = 0;
@@ -957,9 +968,10 @@ bool gcode_parse_ascii(GCode *code,char *line) {
   } 
 #if FEATURE_CHECKSUM_FORCED
   else {
-    if(GCODE_HAS_M(code) && code->M == 117) return true;
+    if(!fromSerial) return true;
+    if((GCODE_HAS_M(code) && code->M == 110) || GCODE_HAS_STRING(code)) return true;
       if(DEBUG_ERRORS) {
-        OUT_P("Error: Missing checksum ");
+        OUT_P_LN("Error: Missing checksum ");
       }
     return false;
   }

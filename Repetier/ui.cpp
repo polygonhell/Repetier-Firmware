@@ -137,7 +137,7 @@ inline void i2c_init(void)
   TWBR = ((F_CPU/SCL_CLOCK)-16)/2;  /* must be > 10 for stable operation */ 
 #if UI_DISPLAY_I2C_CHIPTYPE==0 && BEEPER_TYPE==2 && BEEPER_PIN>=0
 #if BEEPER_ADDRESS == UI_DISPLAY_I2C_ADDRESS
-  uid.outputMask |= BEEPER_PIN
+  uid.outputMask |= BEEPER_PIN;
 #endif
 #endif
 #if UI_DISPLAY_I2C_CHIPTYPE==1
@@ -713,6 +713,13 @@ UIDisplay::UIDisplay() {
 void UIDisplay::initialize() {
 #if UI_DISPLAY_TYPE>0
   initializeLCD();
+#if UI_DISPLAY_TYPE==3
+    // I don't know why but after power up the lcd does not come up
+    // but if I reinitialize i2c and the lcd again here it works.
+    delay(10);
+    i2c_init();
+    initializeLCD();
+#endif
   uid.printRowP(0,versionString);
   uid.printRowP(1,versionString2);
 #endif
@@ -1521,7 +1528,7 @@ void UIDisplay::nextPreviousAction(char next) {
   case UI_ACTION_OPS_MOVE_AFTER:
     printer_state.opsMoveAfter+=increment;
     if(printer_state.opsMoveAfter<0) printer_state.opsMoveAfter=0;
-    else if(printer_state.opsMoveAfter>10) printer_state.opsMoveAfter=100;
+    else if(printer_state.opsMoveAfter>100) printer_state.opsMoveAfter=100;
     extruder_select(current_extruder->id);
     break;
   case UI_ACTION_OPS_MINDISTANCE:
@@ -2142,10 +2149,10 @@ void UIDisplay::executeAction(int action) {
 #if EXT0_HEATER_PIN>-1
      WRITE(EXT0_HEATER_PIN,0);
 #endif
-#if defined(EXT1_HEATER_PIN) && EXT1_HEATER_PIN>-1
+#if defined(EXT1_HEATER_PIN) && EXT1_HEATER_PIN>-1 && NUM_EXTRUDER>1
      WRITE(EXT1_HEATER_PIN,0);
 #endif
-#if defined(EXT2_HEATER_PIN) && EXT2_HEATER_PIN>-1
+#if defined(EXT2_HEATER_PIN) && EXT2_HEATER_PIN>-1 && NUM_EXTRUDER>2
      WRITE(EXT2_HEATER_PIN,0);
 #endif
 #if FAN_PIN>-1
@@ -2184,6 +2191,23 @@ void UIDisplay::slowAction() {
   cli();
   if((flags & 9)==0) {
     flags|=8;
+#if FEATURE_CONTROLLER==5
+        {
+            // check temps and set appropriate leds
+            int led= 0;
+#if NUM_EXTRUDER>0
+            led |= (tempController[current_extruder->id]->targetTemperatureC > 0 ? UI_I2C_HOTEND_LED : 0);
+#endif
+#if HAVE_HEATED_BED
+            led |= (heatedBedController.targetTemperatureC > 0 ? UI_I2C_HEATBED_LED : 0);
+#endif
+#if FAN_PIN>=0
+            led |= (pwm_pos[NUM_EXTRUDER+2] > 0 ? UI_I2C_FAN_LED : 0);
+#endif
+            // update the leds
+            uid.outputMask= ~led&(UI_I2C_HEATBED_LED|UI_I2C_HOTEND_LED|UI_I2C_FAN_LED);
+        }
+#endif
     sei();
     int nextAction = 0;
     ui_check_slow_keys(nextAction);

@@ -227,12 +227,73 @@ STEPPER_CURRENT_CONTROL
 #endif
 
 /****************************************************************************************
+* Gen3 PLUS for RepRap Motherboard V1.2
+*
+****************************************************************************************/
+#if MOTHERBOARD == 21
+    #define KNOWN_BOARD 1
+
+    #ifndef __AVR_ATmega644P__
+    #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+    #endif
+
+    //x axis pins
+    #define X_STEP_PIN      15
+    #define X_DIR_PIN       18
+    #define X_ENABLE_PIN    19
+    #define X_MIN_PIN       20
+    #define X_MAX_PIN       -1
+
+    //y axis pins
+    #define Y_STEP_PIN      23
+    #define Y_DIR_PIN       22
+    #define Y_ENABLE_PIN    24
+    #define Y_MIN_PIN       25
+    #define Y_MAX_PIN       -1
+
+    //z axis pins
+    #define Z_STEP_PIN      27
+    #define Z_DIR_PIN       28
+    #define Z_ENABLE_PIN    29
+    #define Z_MIN_PIN       30
+    #define Z_MAX_PIN       -1
+
+    #define E0_DIR_PIN       21
+    #define E0_STEP_PIN  17
+    #define E0_ENABLE_PIN  13
+
+    //heaters
+    #define HEATER_0_PIN  12    // hot end heater
+    #define HEATER_1_PIN   16    // heated bed heater
+
+    //pin for debugging.
+    #define DEBUG_PIN        -1
+    //SD card pin
+    #define SDSS      4
+    #define SDPOWER          -1
+    #define FAN_PIN          -1
+    #define TEMP_0_PIN        0
+    #define TEMP_1_PIN        5
+    #define LED_PIN          -1
+
+    //pin for controlling the PSU.
+    #define PS_ON_PIN       14
+    #define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
+    #define E1_PINS
+#endif
+    //----------end Gen3 PLUS for RepRap Motherboard V1.2--------------
+
+/****************************************************************************************
 * Arduino Mega pin assignment
 *
 ****************************************************************************************/
 #if MOTHERBOARD == 33
   #define MOTHERBOARD 3
   #define RAMPS_V_1_3
+#elif MOTHERBOARD == 34
+  #define MOTHERBOARD 3
+  #define RAMPS_V_1_3
+  #define AZTEEG_X3
 #endif
 #if MOTHERBOARD == 3
   #define KNOWN_BOARD 1
@@ -354,6 +415,16 @@ STEPPER_CURRENT_CONTROL
 #define MOSI_PIN         51
 #define MAX6675_SS       53
 
+#ifdef AZTEEG_X3
+#define SDSUPPORT true
+#define SDCARDDETECTINVERTED false
+#define SDCARDDETECT -1
+#define FAN_PIN           4
+#define FAN2_PIN          5
+#define LIGHT_PIN         6
+#define BEEPER_PIN        33  // Activate beeper on extension shield
+#define BEEPER_TYPE        1
+#endif
 
 #endif
 
@@ -613,6 +684,9 @@ STEPPER_CURRENT_CONTROL
     #define TEMP_1_PIN          6   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
     #define SDPOWER          -1
     #define SDSS          31
+    #define SCK_PIN          7
+    #define MISO_PIN         6
+    #define MOSI_PIN         5
     
     #define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
     #define E1_PINS
@@ -620,6 +694,68 @@ STEPPER_CURRENT_CONTROL
 #ifndef KNOWN_BOARD
 #error Unknown MOTHERBOARD value in configuration.h
 #endif
+
+#endif
+
+/****************************************************************************************
+* Melzi pin assignment
+*
+****************************************************************************************/
+#if MOTHERBOARD == 63
+#define KNOWN_BOARD 1
+#ifndef __AVR_ATmega644P__
+#ifndef __AVR_ATmega1284P__
+//#error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+#endif
+#endif
+
+#define X_STEP_PIN         15
+#define X_DIR_PIN          21
+#define X_MIN_PIN          18
+#define X_MAX_PIN           -2
+
+#define Y_STEP_PIN         22
+#define Y_DIR_PIN          23
+#define Y_MIN_PIN          19
+#define Y_MAX_PIN          -1
+
+#define Z_STEP_PIN         3
+#define Z_DIR_PIN          2
+#define Z_MIN_PIN          20
+#define Z_MAX_PIN          -1
+
+#define E0_STEP_PIN         1
+#define E0_DIR_PIN          0
+#define E0_ENABLE_PIN      14
+
+#define PROBE_PIN          -1    //29 on Melzi1284p A2
+
+#define LED_PIN            27
+
+#define FAN_PIN            4 
+
+#define PS_ON_PIN          -1
+#define KILL_PIN           -1
+
+#define HEATER_0_PIN       13 // (extruder)
+#define HEATER_2_PIN       -1
+#ifdef REPRAPPRO_HUXLEY
+  #define HEATER_1_PIN     10 // bed (change to 10 for gate pin of MOSFET on heated bed)
+#else
+  #define HEATER_1_PIN     12
+#endif
+#define X_ENABLE_PIN       14
+#define Y_ENABLE_PIN       14
+#define Z_ENABLE_PIN       26
+
+#define TEMP_0_PIN          7   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 33 extruder)
+#define TEMP_1_PIN          6   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
+#define TEMP_2_PIN         -1
+#define SDPOWER            -1
+#define SDSS               31
+
+#define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
+#define E1_PINS
 
 #endif
 
@@ -639,21 +775,21 @@ STEPPER_CURRENT_CONTROL
 #define X_DIR_PIN       18
 #define X_ENABLE_PIN    24
 #define X_MIN_PIN       7
-#define X_MAX_PIN       -1
+#define X_MAX_PIN       6
     
 //y axis pins
 #define Y_STEP_PIN      23
 #define Y_DIR_PIN       22
 #define Y_ENABLE_PIN    24
 #define Y_MIN_PIN       5
-#define Y_MAX_PIN       -1
+#define Y_MAX_PIN       2
     
 //z axis pins
 #define Z_STEP_PIN      26
 #define Z_DIR_PIN       25
 #define Z_ENABLE_PIN    24
 #define Z_MIN_PIN       1
-#define Z_MAX_PIN       -1
+#define Z_MAX_PIN       0
     
 //extruder pins
 #define E0_STEP_PIN      28     
@@ -683,6 +819,7 @@ STEPPER_CURRENT_CONTROL
     #define RX_ENABLE_PIN	13
 
 #define SCK_PIN          7
+#define SDSSORIG         4
 #define MISO_PIN         6
 #define MOSI_PIN         5
 
@@ -745,6 +882,7 @@ STEPPER_CURRENT_CONTROL
 
   #define SDPOWER          -1
   #define SDSS          -1
+  #define SDSSORIG         4  // Needs to set this to output to enable SPI even if other SS is used!
 
   #define SCK_PIN          7
   #define MISO_PIN         6
@@ -1099,8 +1237,8 @@ STEPPER_CURRENT_CONTROL
  #define KILL_PIN           -1
  
  #define HEATER_0_PIN       9    // EXTRUDER 1
- #define HEATER_1_PIN       8    // EXTRUDER 2 
- #define HEATER_2_PIN       10   // Heated bed  
+ #define HEATER_1_PIN       8    // Heated bed 
+ #define HEATER_2_PIN       10   // EXTRUDER 2  
  
  #define TEMP_0_PIN         13   // Thermistor 0 ANALOG NUMBERING   
  #define TEMP_1_PIN         15   // Thermistor 1 ANALOG NUMBERING   
@@ -1294,6 +1432,10 @@ STEPPER_CURRENT_CONTROL
 
 #ifndef CPU_ARCH  // Set default architecture
 #define CPU_ARCH ARCH_AVR
+#endif
+
+#ifndef SDSSORIG
+#define SDSSORIG -1
 #endif
 
 #ifndef STEPPER_CURRENT_CONTROL // Set default stepper current control if not set yet.
