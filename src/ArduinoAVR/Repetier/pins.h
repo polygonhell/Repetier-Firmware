@@ -78,7 +78,6 @@ STEPPER_CURRENT_CONTROL
 #define LED_PIN            -1
 #define FAN_PIN            -1
 #define PS_ON_PIN          15
-#define KILL_PIN           -1
 
 #define HEATER_0_PIN        6
 #define TEMP_0_PIN          0    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
@@ -151,7 +150,6 @@ STEPPER_CURRENT_CONTROL
 #define LED_PIN             0
 #define FAN_PIN            -1
 #define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 #define HEATER_0_PIN       14
 #define TEMP_0_PIN          4 //D27   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
@@ -218,7 +216,6 @@ STEPPER_CURRENT_CONTROL
 #define PS_ON_PIN       14
 
 #define FAN_PIN         -1
-#define KILL_PIN        -1
 
 #define HEATER_0_PIN    -1
 #define TEMP_0_PIN      -1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
@@ -350,7 +347,6 @@ STEPPER_CURRENT_CONTROL
 #define LED_PIN            13
 #define FAN_PIN            9
 #define PS_ON_PIN          12
-#define KILL_PIN           -1
 
 #define HEATER_0_PIN       10
 #define HEATER_1_PIN       8
@@ -390,7 +386,6 @@ STEPPER_CURRENT_CONTROL
 #define SDSS               53
 #define LED_PIN            13
 #define PS_ON_PIN          -1
-#define KILL_PIN           -1
 //#define SCL                21
 //#define SDA                20
 
@@ -424,12 +419,28 @@ STEPPER_CURRENT_CONTROL
 #ifdef AZTEEG_X3
 #define SDSUPPORT true
 #define SDCARDDETECTINVERTED false
-#define SDCARDDETECT -1
+#define SDCARDDETECT 49
 #define FAN_PIN           4
 #define FAN2_PIN          5
 #define LIGHT_PIN         6
 #define BEEPER_PIN        33  // Activate beeper on extension shield
 #define BEEPER_TYPE        1
+
+#define E2_STEP_PIN         27  // Only available with X3 shield
+#define E2_DIR_PIN          29  // Only available with X3 shield
+#define E2_ENABLE_PIN       41  // Only available with X3 shield
+#define E3_STEP_PIN         23  // Only available with X3 shield
+#define E3_DIR_PIN          25  // Only available with X3 shield
+#define E3_ENABLE_PIN       40  // Only available with X3 shield
+#define HEATER_3_PIN        17  // Only available with X3 shield
+#define TEMP_3_PIN          12  // Only available with X3 shield
+#define HEATER_4_PIN        16  // Only available with X3 shield
+#define TEMP_4_PIN          5 //11  // Only available with X3 shield
+
+#define E1_PINS E1_STEP_PIN,E1_DIR_PIN,E1_ENABLE_PIN,
+#define E2_PINS E2_STEP_PIN,E2_DIR_PIN,E2_ENABLE_PIN,
+#define E3_PINS E3_STEP_PIN,E3_DIR_PIN,E3_ENABLE_PIN,
+
 #endif
 #endif
 
@@ -477,22 +488,21 @@ STEPPER_CURRENT_CONTROL
 #define LED_PIN            13
 
 #define FAN_PIN            7
-//additional FAN1 PIN (e.g. useful for electronics fan or light on/off) on PIN 8
+#define FAN1 PIN  8 // (e.g. useful for electronics fan or light on/off) on PIN 8
 
 #define PS_ON_PIN          45
-#define KILL_PIN           46
 
 #define HEATER_0_PIN       2    // EXTRUDER 1
-#define HEATER_1_PIN       3    // EXTRUDER 2
-#define HEATER_2_PIN       6    // EXTRUDER 3
-//optional FAN1 can be used as 4th heater output: #define HEATER_3_PIN       8    // EXTRUDER 4
-#define HEATER_BED_PIN     9    // BED
+#define HEATER_2_PIN       3    // EXTRUDER 2
+#define HEATER_3_PIN       6    // EXTRUDER 3
+//optional FAN1 can be used as 4th heater output: #define HEATER_4_PIN       8    // EXTRUDER 4
+#define HEATER_1_PIN       9    // BED
 
 #define TEMP_0_PIN         15   // ANALOG NUMBERING
-#define TEMP_1_PIN         14   // ANALOG NUMBERING
-#define TEMP_2_PIN         13   // ANALOG NUMBERING
+#define TEMP_2_PIN         14   // ANALOG NUMBERING
+#define TEMP_3_PIN         13   // ANALOG NUMBERING
 //optional for extruder 4 or chamber: #define TEMP_2_PIN         12   // ANALOG NUMBERING
-#define TEMP_BED_PIN       11   // ANALOG NUMBERING
+#define TEMP_1_PIN       11   // ANALOG NUMBERING
 
 #define SDPOWER            -1
 #define SDSS               53
@@ -544,7 +554,6 @@ STEPPER_CURRENT_CONTROL
 #define LED_PIN            -1
 #define FAN_PIN             5
 #define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 #define HEATER_0_PIN        6
 #define TEMP_0_PIN          0    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
@@ -606,7 +615,6 @@ STEPPER_CURRENT_CONTROL
 #define SDPOWER          -1
 #define SDSS          16 // SCL pin of I2C header
 #define LED_PIN         -1    //changed @ rkoeppl 20110410
-#define TEMP_1_PIN      -1    //changed @ rkoeppl 20110410
 #define FAN_PIN         -1    //changed @ rkoeppl 20110410
 #define PS_ON_PIN       -1    //changed @ rkoeppl 20110410
 //our pin for debugging.
@@ -665,7 +673,6 @@ STEPPER_CURRENT_CONTROL
 #define FAN_PIN            -1
 
 #define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 #define HEATER_0_PIN       13 // (extruder)
 
@@ -744,7 +751,6 @@ STEPPER_CURRENT_CONTROL
 #define FAN_PIN            4
 
 #define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 #define HEATER_0_PIN       13 // (extruder)
 #define HEATER_2_PIN       -1
@@ -761,7 +767,7 @@ STEPPER_CURRENT_CONTROL
 #define TEMP_1_PIN          6   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
 #define TEMP_2_PIN         -1
 #define SDPOWER            -1
-#define SDSS               31
+#define SDSS               31 // 31 http://reprap.org/wiki/Melzi#Melzi_Arduino_Pin_Numbers says 31, schamtic show pin 37 = PA0 which is arduino pin 31!
 #define SCK_PIN          7
 #define MISO_PIN         6
 #define MOSI_PIN         5
@@ -876,8 +882,8 @@ STEPPER_CURRENT_CONTROL
 #define E0_STEP_PIN      19
 #define E0_DIR_PIN       18
 #define E0_ENABLE_PIN    25
-#define TEMP_0_PIN      0
-#define TEMP_1_PIN      1
+#define TEMP_0_PIN      1
+#define TEMP_1_PIN      0
 #define HEATER_0_PIN    4
 #define HEATER_1_PIN    3
 #define HEATER_2_PIN   -1
@@ -907,6 +913,72 @@ STEPPER_CURRENT_CONTROL
 #define MOSI_PIN         5
 #define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
 #define E1_PINS
+#endif
+
+/****************************************************************************************
+* Sethi 3D_1 Extruder
+*
+****************************************************************************************/
+#if MOTHERBOARD == 72
+#define KNOWN_BOARD 1
+
+#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
+    #error Oops!  Make sure you have 'Sethi' selected from the 'Tools -> Boards' menu.
+#endif
+
+//x axis pins
+#define X_STEP_PIN      19
+#define X_DIR_PIN       18
+#define X_ENABLE_PIN    24
+#define X_MIN_PIN       2
+#define X_MAX_PIN       6
+
+//y axis pins
+#define Y_STEP_PIN      23
+#define Y_DIR_PIN       22
+#define Y_ENABLE_PIN    24
+#define Y_MIN_PIN       0
+#define Y_MAX_PIN       2
+
+//z axis pins
+#define Z_STEP_PIN      26
+#define Z_DIR_PIN       25
+#define Z_ENABLE_PIN    24
+#define Z_MIN_PIN       1
+#define Z_MAX_PIN       0
+
+//extruder pins
+#define E0_STEP_PIN      28
+#define E0_DIR_PIN       27
+#define E0_ENABLE_PIN    24
+#define TEMP_0_PIN      1
+#define TEMP_1_PIN      2
+#define HEATER_0_PIN    4
+#define HEATER_1_PIN    3
+
+
+#define SDPOWER          -1
+#define SDSS          -1 // SCL pin of I2C header
+#define LED_PIN         -1
+
+#define FAN_PIN         31
+#define PS_ON_PIN       15
+#define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
+#define E1_PINS
+
+    //our pin for debugging.
+
+    #define DEBUG_PIN        0
+
+    //our RS485 pins
+    #define TX_ENABLE_PIN	12
+    #define RX_ENABLE_PIN	13
+
+#define SCK_PIN          7
+#define SDSSORIG         4
+#define MISO_PIN         6
+#define MOSI_PIN         5
+
 #endif
 
 /****************************************************************************************
@@ -953,15 +1025,14 @@ STEPPER_CURRENT_CONTROL
 #define FAN_PIN            16 // Fan
 #define PS_ON_PIN          -1
 
-#define KILL_PIN           -1
 #define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
 #define E1_PINS
 
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support
 #define SCK_PIN          21
-#define MISO_PIN         22
-#define MOSI_PIN         23
+#define MISO_PIN         23
+#define MOSI_PIN         22
 #endif
 
 #endif
@@ -1011,14 +1082,13 @@ STEPPER_CURRENT_CONTROL
 #define FAN_PIN            16 // Fan
 #define PS_ON_PIN          -1
 
-#define KILL_PIN           -1
 #define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
 #define E1_PINS
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support
 #define SCK_PIN          21
-#define MISO_PIN         22
-#define MOSI_PIN         23
+#define MISO_PIN         23
+#define MOSI_PIN         22
 #endif
 
 #endif
@@ -1081,7 +1151,6 @@ STEPPER_CURRENT_CONTROL
 #define FAN_PIN            25	// OUT1 PINA.3, 75, OUT1
 #define FAN_BOARD_PIN      27   // OUT2
 #define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 #define HEATER_0_PIN       10	// PINB.4, 23, HZ1
 #define HEATER_1_PIN        9	// PINH.6, 18, HZ2
@@ -1153,7 +1222,6 @@ STEPPER_CURRENT_CONTROL
 
 #define FAN_PIN            7 // IO pin. Buffer needed
 #define PS_ON_PIN          12
-#define KILL_PIN           -1
 
 #define HEATER_0_PIN       9    // EXTRUDER 1
 #define HEATER_1_PIN       8    // EXTRUDER 2 (FAN On Sprinter)
@@ -1256,7 +1324,6 @@ STEPPER_CURRENT_CONTROL
 #define FAN_PIN            7
 #define FAN2_PIN           6
 #define PS_ON_PIN          12
-#define KILL_PIN           -1
 
 #define HEATER_0_PIN       9    // EXTRUDER 1
 #define HEATER_2_PIN       8    // Heated bed
@@ -1301,8 +1368,9 @@ STEPPER_CURRENT_CONTROL
 #if MOTHERBOARD == 301
 #define KNOWN_BOARD
 /*****************************************************************
-* Rambo Pin Assignments
+* RAMBo Pin Assignments
 ******************************************************************/
+
 #ifndef __AVR_ATmega2560__
 #error Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu.
 #endif
@@ -1337,12 +1405,11 @@ STEPPER_CURRENT_CONTROL
 #define HEATER_0_PIN   9
 #define TEMP_0_PIN     0
 
-#define HEATER_1_PIN   -1 //7
-#define TEMP_1_PIN     1
+#define HEATER_1_PIN   3
+#define TEMP_1_PIN     2
 
-
-#define HEATER_2_PIN   -1
-#define TEMP_2_PIN     -1
+#define HEATER_2_PIN   -1 //7
+#define TEMP_2_PIN     1
 
 #define E0_STEP_PIN    34
 #define E0_DIR_PIN     43
@@ -1358,8 +1425,6 @@ STEPPER_CURRENT_CONTROL
 
 #define DIGIPOTSS_PIN  38
 #define DIGIPOT_CHANNELS {4,5,3,0,1} // X Y Z E0 E1 digipot channels to stepper driver mapping
-#define STEPPER_CURRENT_CONTROL  CURRENT_CONTROL_DIGIPOT
-
 
 #define SDPOWER        -1
 #define SDSS           53
@@ -1379,6 +1444,147 @@ STEPPER_CURRENT_CONTROL
 #define STEPPER_CURRENT_CONTROL CURRENT_CONTROL_DIGIPOT
 
 #endif
+
+
+/***************************************************************************************
+*PiBot for Repetier pins assignment
+*illustration :
+* PiBot for Repetier V1.0             =314
+* PiBot for Repetier V1.4              =315
+***************************************************************************************/
+#if MOTHERBOARD == 315
+#define MOTHERBOARD 314
+#define PiBot_V_1_4
+#endif
+#if MOTHERBOARD == 314
+#define KNOWN_BOARD 1
+#define PiBot true
+#ifndef __AVR_ATmega1280__
+#ifndef __AVR_ATmega2560__
+#error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+#endif
+#endif
+
+#ifdef PiBot_V_1_4
+#define X_STEP_PIN         4
+#define X_DIR_PIN          17
+#define X_ENABLE_PIN       16
+#define X_MIN_PIN          37
+#define X_MAX_PIN          34
+
+#define Y_STEP_PIN         56
+#define Y_DIR_PIN          55
+#define Y_ENABLE_PIN       54
+#define Y_MIN_PIN          36
+#define Y_MAX_PIN          33
+
+#define Z_STEP_PIN         59
+#define Z_DIR_PIN          58
+#define Z_ENABLE_PIN       57
+#define Z_MIN_PIN          35
+#define Z_MAX_PIN          32
+
+#define E0_STEP_PIN         24
+#define E0_DIR_PIN          23
+#define E0_ENABLE_PIN       22
+
+#define E1_STEP_PIN         27
+#define E1_DIR_PIN          26
+#define E1_ENABLE_PIN       25
+//uncomment when use 3rd extruder
+#define E2_STEP_PIN         15
+#define E2_DIR_PIN          14
+#define E2_ENABLE_PIN       39
+
+#define E3_STEP_PIN         41
+#define E3_DIR_PIN          38
+#define E3_ENABLE_PIN       13
+
+#define SDPOWER            -1
+#define SDCARDDETECT 	    10
+
+#define LED_PIN            40
+#define FAN_PIN            7        ////*****fan0
+//uncomment when the 2nd fan used - works only without heated bed!
+#define FAN2_PIN           2
+#define PS_ON_PIN          30
+
+#define HEATER_0_PIN       3    ////**** Extuder1
+#define HEATER_1_PIN       12   ////***Extuder2
+#define HEATER_2_PIN       6    ////***Bed
+//uncomment when the 3rd extruder used
+#define HEATER_3_PIN       9   ////***Extuder3
+//uncomment when the 4th extruder used
+#define HEATER_4_PIN       11   ////***Extuder4
+
+#define TEMP_0_PIN         14   // ANALOG NUMBERING   ////***Extuder1
+#define TEMP_1_PIN         15   // ANALOG NUMBERING   ////***Bed
+#define TEMP_2_PIN         13   // ANALOG NUMBERING   ////***Extuder2
+//uncomment when 3 extruder used
+#define TEMP_3_PIN         12   // ANALOG NUMBERING   ////***Extuder3
+//uncomment when 4 extruder used
+#define TEMP_4_PIN         11   // ANALOG NUMBERING   ////***Extuder4
+#define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
+#define E1_PINS E1_STEP_PIN,E1_DIR_PIN,E1_ENABLE_PIN,
+#define E2_PINS E2_STEP_PIN,E2_DIR_PIN,E2_ENABLE_PIN,
+#define SDCARDDETECT        10
+#else
+#define X_STEP_PIN         54
+#define X_DIR_PIN          55
+#define X_ENABLE_PIN       38
+#define X_MIN_PIN          3
+#define X_MAX_PIN          2
+
+#define Y_STEP_PIN         60
+#define Y_DIR_PIN          61
+#define Y_ENABLE_PIN       56
+#define Y_MIN_PIN          14
+#define Y_MAX_PIN          15
+
+#define Z_STEP_PIN         46
+#define Z_DIR_PIN          48
+#define Z_ENABLE_PIN       62
+#define Z_MIN_PIN          18
+#define Z_MAX_PIN          19
+
+#define E0_STEP_PIN         26
+#define E0_DIR_PIN          28
+#define E0_ENABLE_PIN       24
+
+#define E1_STEP_PIN         36
+#define E1_DIR_PIN          34
+#define E1_ENABLE_PIN       30
+
+#define SDPOWER            -1
+#define SDCARDDETECT 	    49
+
+#define LED_PIN            13
+#define FAN_PIN            7        ////*****fan
+#define PS_ON_PIN          12
+
+#define HEATER_0_PIN       8    ////**** Extuder1
+#define HEATER_1_PIN       10    ////***Extuder2
+#define HEATER_2_PIN       9   ////***Bed
+#define TEMP_0_PIN         13   // ANALOG NUMBERING   ////***Extuder1
+#define TEMP_1_PIN         15   // ANALOG NUMBERING   ////***Bed
+#define TEMP_2_PIN         14   // ANALOG NUMBERING   ////***Extuder2
+
+#define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
+#define E1_PINS E1_STEP_PIN,E1_DIR_PIN,E1_ENABLE_PIN,
+#define SDCARDDETECT       49
+
+#endif     ///////****** end PiBot for Repetier V1.4
+////***ISP for TFcard
+#define SDSS             53
+#define SCK_PIN          52
+#define MISO_PIN         50
+#define MOSI_PIN         51
+
+#define SDSUPPORT true
+#define SDCARDDETECTINVERTED false
+
+#endif   ///////******end  PiBot for Repetier
+
 
 #if MOTHERBOARD == 401
 #ifndef __SAM3X8E__
@@ -1444,12 +1650,78 @@ STEPPER_CURRENT_CONTROL
 #define LED_PIN        13
 #define FAN_PIN        8
 #define PS_ON_PIN      4
-#define KILL_PIN       -1
 #define SUICIDE_PIN    -1  //PIN that has to be turned on right after start, to keep power flowing.
 
 #define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,E0_MS1_PIN,E0_MS2_PIN,
 #define E1_PINS
 
+#endif
+
+
+/****************************************************************************************
+* Sanguish Beta pin assignment
+*
+****************************************************************************************/
+#if MOTHERBOARD == 501
+#define KNOWN_BOARD
+
+#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
+#error Oops! Make sure you have 'Your MCU/Bootloader' selected from the 'Tools -> Boards' menu.
+#endif
+
+//x axis pins
+#define X_STEP_PIN 28
+#define X_DIR_PIN 27
+#define X_ENABLE_PIN 29
+#define X_MIN_PIN 2
+#define X_MAX_PIN -1
+
+//y axis pins
+#define Y_STEP_PIN 25
+#define Y_DIR_PIN 24
+#define Y_ENABLE_PIN 26
+#define Y_MIN_PIN 5
+#define Y_MAX_PIN -1
+
+//z axis pins
+#define Z_STEP_PIN 22
+#define Z_DIR_PIN 21
+#define Z_ENABLE_PIN 23
+#define Z_MIN_PIN 1
+#define Z_MAX_PIN -1
+
+//extruder pins
+#define E0_STEP_PIN 19
+#define E0_DIR_PIN 18
+#define E0_ENABLE_PIN 20
+#define TEMP_0_PIN 1
+#define TEMP_1_PIN 0
+#define HEATER_0_PIN 3
+#define HEATER_1_PIN 4
+
+
+#define SDPOWER -1
+#define SDSS -1
+#define LED_PIN -1
+
+#define FAN_PIN -1
+#define PS_ON_PIN 0
+//our pin for debugging.
+
+#define DEBUG_PIN -1
+
+//our RS485 pins
+#define TX_ENABLE_PIN	12
+#define RX_ENABLE_PIN	13
+
+#define SDPOWER -1
+#define SDSS -1
+
+#define SCK_PIN 7
+#define MISO_PIN 6
+#define MOSI_PIN 5
+#define E0_PINS E0_STEP_PIN,E0_DIR_PIN,E0_ENABLE_PIN,
+#define E1_PINS
 #endif
 
 #ifndef CPU_ARCH  // Set default architecture
@@ -1475,7 +1747,6 @@ STEPPER_CURRENT_CONTROL
 #if NUM_EXTRUDER<3
 #define E2_PINS
 #endif
-
 #define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, LED_PIN, PS_ON_PIN, \
                         HEATER_0_PIN, HEATER_1_PIN, FAN_PIN, E0_PINS E1_PINS E2_PINS TEMP_0_PIN, TEMP_1_PIN,SDSS }
 #endif

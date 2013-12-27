@@ -22,20 +22,20 @@
 #ifndef _REPETIER_H
 #define _REPETIER_H
 
-#define REPETIER_VERSION "0.90alpha"
+#define REPETIER_VERSION "0.90"
 
 // ##########################################################################################
 // ##                                  Debug configuration                                 ##
 // ##########################################################################################
 
 /** Uncomment, to see detailed data for every move. Only for debugging purposes! */
-#define DEBUG_QUEUE_MOVE
+//#define DEBUG_QUEUE_MOVE
 /** Allows M111 to set bit 5 (16) which disables all commands except M111. This can be used
 to test your data througput or search for communication problems. */
 #define INCLUDE_DEBUG_COMMUNICATION
 /** Allows M111 so set bit 6 (32) which disables moves, at the first tried step. In combination
 with a dry run, you can test the speed of path computations, which are still performed. */
-//#define INCLUDE_DEBUG_NO_MOVE
+#define INCLUDE_DEBUG_NO_MOVE
 /** Writes the free RAM to output, if it is less then at the last test. Should always return
 values >500 for safety, since it doesn't catch every function call. Nice to tweak cache
 usage or for seraching for memory induced errors. Switch it off for production, it costs execution time. */
@@ -47,8 +47,12 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 //#define DEBUG_GENERIC
 /** If enabled, steps to move and moved steps are compared. */
 //#define DEBUG_STEPCOUNT
-
-#define DEBUG_DELTA_OVERFLOW
+/** This enables code to make M666 drop an ok, so you get problems with communication. It is to test host robustness. */
+#define DEBUG_COM_ERRORS
+//#define DEBUG_DELTA_OVERFLOW
+// Add write debug to quicksettings menu to debug some vars during hang
+//#define DEBUG_PRINT
+//#define DEBUG_SPLIT
 
 // Uncomment the following line to enable debugging. You can better control debugging below the following line
 //#define DEBUG
@@ -73,6 +77,12 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define ANALYZER_ON(a)
 #define ANALYZER_OFF(a)
 #endif
+
+#define X_AXIS 0
+#define Y_AXIS 1
+#define Z_AXIS 2
+#define E_AXIS 3
+#define VIRTUAL_AXIS 4
 
 
 // Bits of the ADC converter
@@ -99,6 +109,25 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define HOME_ORDER_ZYX 6
 
 #include "Configuration.h"
+
+#define SPEED_MIN_MILLIS 300
+#define SPEED_MAX_MILLIS 50
+#define SPEED_MAGNIFICATION 100.0f
+
+#ifndef UI_SPEEDDEPENDENT_POSITIONING
+#define UI_SPEEDDEPENDENT_POSITIONING true
+#endif
+
+#if DRIVE_SYSTEM==3 || DRIVE_SYSTEM==4
+#define NONLINEAR_SYSTEM true
+#else
+#define NONLINEAR_SYSTEM false
+#endif
+
+#ifdef FEATURE_Z_PROBE
+#define MANUAL_CONTROL true
+#endif
+
 #if DRIVE_SYSTEM==1 || DRIVE_SYSTEM==2
 #define XY_GANTRY
 #endif
@@ -113,14 +142,13 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 //After this count of steps a new SIN / COS caluclation is startet to correct the circle interpolation
 #define N_ARC_CORRECTION 25
 
-#define KOMMA
 #if NUM_EXTRUDER>0 && EXT0_TEMPSENSOR_TYPE<101
 #define EXT0_ANALOG_INPUTS 1
 #define EXT0_SENSOR_INDEX 0
 #define EXT0_ANALOG_CHANNEL EXT0_TEMPSENSOR_PIN
-#undef KOMMA
-#define KOMMA ,
+#define ACCOMMA0 ,
 #else
+#define ACCOMMA0
 #define EXT0_ANALOG_INPUTS 0
 #define EXT0_SENSOR_INDEX EXT0_TEMPSENSOR_PIN
 #define EXT0_ANALOG_CHANNEL
@@ -129,10 +157,10 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #if NUM_EXTRUDER>1 && EXT1_TEMPSENSOR_TYPE<101
 #define EXT1_ANALOG_INPUTS 1
 #define EXT1_SENSOR_INDEX EXT0_ANALOG_INPUTS
-#define EXT1_ANALOG_CHANNEL KOMMA EXT1_TEMPSENSOR_PIN
-#undef KOMMA
-#define KOMMA ,
+#define EXT1_ANALOG_CHANNEL ACCOMMA0 EXT1_TEMPSENSOR_PIN
+#define ACCOMMA1 ,
 #else
+#define ACCOMMA1 ACCOMMA0
 #define EXT1_ANALOG_INPUTS 0
 #define EXT1_SENSOR_INDEX EXT1_TEMPSENSOR_PIN
 #define EXT1_ANALOG_CHANNEL
@@ -141,10 +169,10 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #if NUM_EXTRUDER>2 && EXT2_TEMPSENSOR_TYPE<101
 #define EXT2_ANALOG_INPUTS 1
 #define EXT2_SENSOR_INDEX EXT0_ANALOG_INPUTS+EXT1_ANALOG_INPUTS
-#define EXT2_ANALOG_CHANNEL KOMMA EXT2_TEMPSENSOR_PIN
-#undef KOMMA
-#define KOMMA ,
+#define EXT2_ANALOG_CHANNEL ACCOMMA1 EXT2_TEMPSENSOR_PIN
+#define ACCOMMA2 ,
 #else
+#define ACCOMMA2 ACCOMMA1
 #define EXT2_ANALOG_INPUTS 0
 #define EXT2_SENSOR_INDEX EXT2_TEMPSENSOR_PIN
 #define EXT2_ANALOG_CHANNEL
@@ -153,10 +181,10 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #if NUM_EXTRUDER>3 && EXT3_TEMPSENSOR_TYPE<101
 #define EXT3_ANALOG_INPUTS 1
 #define EXT3_SENSOR_INDEX EXT0_ANALOG_INPUTS+EXT1_ANALOG_INPUTS+EXT2_ANALOG_INPUTS
-#define EXT3_ANALOG_CHANNEL KOMMA EXT3_TEMPSENSOR_PIN
-#undef KOMMA
-#define KOMMA ,
+#define EXT3_ANALOG_CHANNEL ACCOMMA2 EXT3_TEMPSENSOR_PIN
+#define ACCOMMA3 ,
 #else
+#define ACCOMMA3 ACCOMMA2
 #define EXT3_ANALOG_INPUTS 0
 #define EXT3_SENSOR_INDEX EXT3_TEMPSENSOR_PIN
 #define EXT3_ANALOG_CHANNEL
@@ -165,10 +193,10 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #if NUM_EXTRUDER>4 && EXT4_TEMPSENSOR_TYPE<101
 #define EXT4_ANALOG_INPUTS 1
 #define EXT4_SENSOR_INDEX EXT0_ANALOG_INPUTS+EXT1_ANALOG_INPUTS+EXT2_ANALOG_INPUTS+EXT3_ANALOG_INPUTS
-#define EXT4_ANALOG_CHANNEL KOMMA EXT4_TEMPSENSOR_PIN
-#undef KOMMA
-#define KOMMA ,
+#define EXT4_ANALOG_CHANNEL ACCOMMA3 EXT4_TEMPSENSOR_PIN
+#define ACCOMMA4 ,
 #else
+#define ACCOMMA4 ACCOMMA3
 #define EXT4_ANALOG_INPUTS 0
 #define EXT4_SENSOR_INDEX EXT4_TEMPSENSOR_PIN
 #define EXT4_ANALOG_CHANNEL
@@ -177,10 +205,10 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #if NUM_EXTRUDER>5 && EXT5_TEMPSENSOR_TYPE<101
 #define EXT5_ANALOG_INPUTS 1
 #define EXT5_SENSOR_INDEX EXT0_ANALOG_INPUTS+EXT1_ANALOG_INPUTS+EXT2_ANALOG_INPUTS+EXT3_ANALOG_INPUTS+EXT4_ANALOG_INPUTS
-#define EXT5_ANALOG_CHANNEL KOMMA EXT5_TEMPSENSOR_PIN
-#undef KOMMA
-#define KOMMA ,
+#define EXT5_ANALOG_CHANNEL ACCOMMA4 EXT5_TEMPSENSOR_PIN
+#define ACCOMMA5 ,
 #else
+#define ACCOMMA5 ACCOMMA4
 #define EXT5_ANALOG_INPUTS 0
 #define EXT5_SENSOR_INDEX EXT5_TEMPSENSOR_PIN
 #define EXT5_ANALOG_CHANNEL
@@ -189,7 +217,7 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #if HAVE_HEATED_BED==true && HEATED_BED_SENSOR_TYPE<101
 #define BED_ANALOG_INPUTS 1
 #define BED_SENSOR_INDEX EXT0_ANALOG_INPUTS+EXT1_ANALOG_INPUTS+EXT2_ANALOG_INPUTS+EXT3_ANALOG_INPUTS+EXT4_ANALOG_INPUTS+EXT5_ANALOG_INPUTS
-#define BED_ANALOG_CHANNEL KOMMA  HEATED_BED_SENSOR_PIN
+#define BED_ANALOG_CHANNEL ACCOMMA5 HEATED_BED_SENSOR_PIN
 #undef KOMMA
 #define KOMMA ,
 #else
@@ -211,12 +239,20 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define  ANALOG_INPUT_CHANNELS {EXT0_ANALOG_CHANNEL EXT1_ANALOG_CHANNEL EXT2_ANALOG_CHANNEL EXT3_ANALOG_CHANNEL EXT4_ANALOG_CHANNEL EXT5_ANALOG_CHANNEL BED_ANALOG_CHANNEL}
 #endif
 
+#define MENU_MODE_SD_MOUNTED 1
+#define MENU_MODE_SD_PRINTING 2
+#define MENU_MODE_SD_PAUSED 4
+#define MENU_MODE_FAN_RUNNING 8
+
 #include "HAL.h"
 #include "gcode.h"
-
+#define MAX_VFAT_ENTRIES (2)
+/** Total size of the buffer used to store the long filenames */
+#define LONG_FILENAME_LENGTH (13*MAX_VFAT_ENTRIES+1)
 #define SD_MAX_FOLDER_DEPTH 2
 
 #include "ui.h"
+#include "Communication.h"
 
 #ifndef SDSUPPORT
 #define SDSUPPORT false
@@ -242,32 +278,7 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define uint32 uint32_t
 #define int32 int32_t
 
-/*#if MOTHERBOARD==6 || MOTHERBOARD==62 || MOTHERBOARD==7
-#if MOTHERBOARD!=7
-#define SIMULATE_PWM
-#endif
-#define EXTRUDER_TIMER_VECTOR TIMER2_COMPA_vect
-#define EXTRUDER_OCR OCR2A
-#define EXTRUDER_TCCR TCCR2A
-#define EXTRUDER_TIMSK TIMSK2
-#define EXTRUDER_OCIE OCIE2A
-#define PWM_TIMER_VECTOR TIMER2_COMPB_vect
-#define PWM_OCR OCR2B
-#define PWM_TCCR TCCR2B
-#define PWM_TIMSK TIMSK2
-#define PWM_OCIE OCIE2B
-#else*/
-#define EXTRUDER_TIMER_VECTOR TIMER0_COMPA_vect
-#define EXTRUDER_OCR OCR0A
-#define EXTRUDER_TCCR TCCR0A
-#define EXTRUDER_TIMSK TIMSK0
-#define EXTRUDER_OCIE OCIE0A
-#define PWM_TIMER_VECTOR TIMER0_COMPB_vect
-#define PWM_OCR OCR0B
-#define PWM_TCCR TCCR0A
-#define PWM_TIMSK TIMSK0
-#define PWM_OCIE OCIE0B
-//#endif
+#define IGNORE_COORDINATE 99999
 
 #undef min
 #undef max
@@ -313,7 +324,7 @@ extern uint8 osAnalogInputCounter[ANALOG_INPUTS];
 extern uint osAnalogInputBuildup[ANALOG_INPUTS];
 extern uint8 osAnalogInputPos; // Current sampling position
 extern volatile uint osAnalogInputValues[ANALOG_INPUTS];
-extern byte pwm_pos[NUM_EXTRUDER+3]; // 0-NUM_EXTRUDER = Heater 0-NUM_EXTRUDER of extruder, NUM_EXTRUDER = Heated bed, NUM_EXTRUDER+1 Board fan, NUM_EXTRUDER+2 = Fan
+extern uint8_t pwm_pos[NUM_EXTRUDER+3]; // 0-NUM_EXTRUDER = Heater 0-NUM_EXTRUDER of extruder, NUM_EXTRUDER = Heated bed, NUM_EXTRUDER+1 Board fan, NUM_EXTRUDER+2 = Fan
 #ifdef USE_ADVANCE
 #ifdef ENABLE_QUADRATIC_ADVANCE
 extern int maxadv;
@@ -325,44 +336,32 @@ extern float maxadvspeed;
 
 #include "Extruder.h"
 
-void manage_inactivity(byte debug);
+void manage_inactivity(uint8_t debug);
 
 extern void finishNextSegment();
-#if DRIVE_SYSTEM==3
-extern byte calculate_delta(long cartesianPosSteps[], long deltaPosSteps[]);
-extern void set_delta_position(long xaxis, long yaxis, long zaxis);
-extern float rodMaxLength;
-extern void split_delta_move(byte check_endstops,byte pathOptimize, byte softEndstop);
+#if NONLINEAR_SYSTEM
+extern uint8_t transformCartesianStepsToDeltaSteps(long cartesianPosSteps[], long deltaPosSteps[]);
 #ifdef SOFTWARE_LEVELING
-extern void calculate_plane(long factors[], long p1[], long p2[], long p3[]);
-extern float calc_zoffset(long factors[], long pointX, long pointY);
+extern void calculatePlane(long factors[], long p1[], long p2[], long p3[]);
+extern float calcZOffset(long factors[], long pointX, long pointY);
 #endif
 #endif
 extern void linear_move(long steps_remaining[]);
+#ifndef FEATURE_DITTO_PRINTING
+#define FEATURE_DITTO_PRINTING false
+#endif
+#if FEATURE_DITTO_PRINTING && NUM_EXTRUDER!=2
+#error Ditto printing requires exactly 2 extruder.
+#endif
 
 
-
-extern float axis_steps_per_unit[];
-extern float inv_axis_steps_per_unit[];
-extern float max_feedrate[];
-extern float homing_feedrate[];
-extern float max_start_speed_units_per_second[];
-extern long max_acceleration_units_per_sq_second[];
-extern long max_travel_acceleration_units_per_sq_second[];
-extern unsigned long axis_steps_per_sqr_second[];
-extern unsigned long axis_travel_steps_per_sqr_second[];
-extern byte relative_mode;    ///< Determines absolute (false) or relative Coordinates (true).
-extern byte relative_mode_e;  ///< Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
-
-extern byte unit_inches;
-extern unsigned long previous_millis_cmd;
-extern unsigned long max_inactive_time;
-extern unsigned long stepper_inactive_time;
+extern millis_t previousMillisCmd;
+extern millis_t maxInactiveTime;
+extern millis_t stepperInactiveTime;
 
 extern void setupTimerInterrupt();
-extern void current_control_init();
-extern void microstep_init();
-extern void check_mem();
+extern void motorCurrentControlInit();
+extern void microstepInit();
 
 #include "Printer.h"
 #include "motion.h"
@@ -375,16 +374,17 @@ extern volatile uint osAnalogInputValues[OS_ANALOG_INPUTS];
 #include "HAL.h"
 
 
-extern unsigned int counter_periodical;
-extern volatile byte execute_periodical;
-extern byte counter_250ms;
-extern void write_monitor();
+extern unsigned int counterPeriodical;
+extern volatile uint8_t executePeriodical;
+extern uint8_t counter250ms;
+extern void writeMonitor();
 
 
 
 #if SDSUPPORT
-
-
+extern char tempLongFilename[LONG_FILENAME_LENGTH+1];
+extern char fullName[LONG_FILENAME_LENGTH*SD_MAX_FOLDER_DEPTH+SD_MAX_FOLDER_DEPTH+1];
+#define SHORT_FILENAME_LENGTH 14
 #include "SdFat.h"
 
 enum LsAction {LS_SerialPrint,LS_Count,LS_GetFilename};
@@ -398,27 +398,25 @@ public:
   SdFile file;
   uint32_t filesize;
   uint32_t sdpos;
-  char fullName[13*SD_MAX_FOLDER_DEPTH+13]; // Fill name
+  //char fullName[13*SD_MAX_FOLDER_DEPTH+13]; // Fill name
   char *shortname; // Pointer to start of filename itself
   char *pathend; // File to char where pathname in fullname ends
   bool sdmode;  // true if we are printing from sd card
   bool sdactive;
   //int16_t n;
   bool savetosd;
+  SdBaseFile parentFound;
+
   SDCard();
   void initsd();
-  void write_command(GCode *code);
-  void selectFile(char *filename);
-  inline void mount() {
-    sdmode = false;
-    initsd();
-  }
-  inline void unmount() {
-    sdmode = false;
-    sdactive = false;
-  }
-  inline void startPrint() {if(sdactive) sdmode = true; }
-  inline void pausePrint() {sdmode = false;}
+  void writeCommand(GCode *code);
+  bool selectFile(char *filename,bool silent=false);
+  void mount();
+  void unmount();
+  void startPrint();
+  void pausePrint(bool intern = false);
+  void continuePrint(bool intern=false);
+  void stopPrint();
   inline void setIndex(uint32_t  newpos) { if(!sdactive) return; sdpos = newpos;file.seekSet(sdpos);}
   void printStatus();
   void ls();
@@ -429,45 +427,28 @@ public:
   void makeDirectory(char *filename);
   bool showFilename(const uint8_t *name);
   void automount();
+#ifdef GLENN_DEBUG
+  void writeToFile();
+#endif
 private:
-  void lsRecursive(SdBaseFile *parent,byte level);
+  uint8_t lsRecursive(SdBaseFile *parent,uint8_t level,char *findFilename);
  // SdFile *getDirectory(char* name);
 };
 
 extern SDCard sd;
 #endif
 
-extern int waitRelax; // Delay filament relax at the end of print, could be a simple timeout
-extern void updateStepsParameter(PrintLine *p/*,byte caller*/);
+extern volatile int waitRelax; // Delay filament relax at the end of print, could be a simple timeout
+extern void updateStepsParameter(PrintLine *p/*,uint8_t caller*/);
 
 
-#if DRIVE_SYSTEM==3
-#define SIN_60 0.8660254037844386
-#define COS_60 0.5
-#define DELTA_DIAGONAL_ROD_STEPS (AXIS_STEPS_PER_MM * DELTA_DIAGONAL_ROD)
-#define DELTA_DIAGONAL_ROD_STEPS_SQUARED (DELTA_DIAGONAL_ROD_STEPS * DELTA_DIAGONAL_ROD_STEPS)
-#define DELTA_ZERO_OFFSET_STEPS (AXIS_STEPS_PER_MM * DELTA_ZERO_OFFSET)
-#define DELTA_RADIUS_STEPS (AXIS_STEPS_PER_MM * DELTA_RADIUS)
-
-#define DELTA_TOWER1_X_STEPS -SIN_60*DELTA_RADIUS_STEPS
-#define DELTA_TOWER1_Y_STEPS -COS_60*DELTA_RADIUS_STEPS
-#define DELTA_TOWER2_X_STEPS SIN_60*DELTA_RADIUS_STEPS
-#define DELTA_TOWER2_Y_STEPS -COS_60*DELTA_RADIUS_STEPS
-#define DELTA_TOWER3_X_STEPS 0.0
-#define DELTA_TOWER3_Y_STEPS DELTA_RADIUS_STEPS
-
+#if NONLINEAR_SYSTEM
 #define NUM_AXIS 4
-#define X_AXIS 0
-#define Y_AXIS 1
-#define Z_AXIS 2
-#define E_AXIS 3
-
 #endif
 
 #define STR(s) #s
 #define XSTR(s) STR(s)
 #include "Commands.h"
 #include "Eeprom.h"
-#include "Communication.h"
 
 #endif

@@ -42,9 +42,15 @@ Implemented Codes
 - G20 - Units for G0/G1 are inches.
 - G21 - Units for G0/G1 are mm.
 - G28 - Home all axis or named axis.
+- G29 S<0..2> - Z-Probe at the 3 defined probe points. S = 1 measure avg. zHeight, S = 2 store avg zHeight
+- G30 - Single z-probe at current position
+- G31 - Write signal of probe sensor
+- G32 S<0..2> P<0..1> - Autolevel print bed. S = 1 measure zLength, S = 2 Measue and store new zLength, P = 1 iterative correction for delta
 - G90 - Use absolute coordinates
 - G91 - Use relative coordinates
 - G92 - Set current position to cordinates given
+- G131 - set extruder offset position to 0 - needed for calibration with G132
+- G132 - calibrate endstop positions. Call this, after calling G131 and after centering the extruder holder.
 
 RepRap M Codes
 
@@ -57,7 +63,6 @@ RepRap M Codes
 
 Custom M Codes
 
-- M80  - Turn on Power Supply
 - M20  - List SD card
 - M21  - Init SD card
 - M22  - Release SD card
@@ -78,12 +83,15 @@ Custom M Codes
 - M84  - Disable steppers until next move,
         or use S<seconds> to specify an inactivity timeout, after which the steppers will be disabled.  S0 to disable the timeout.
 - M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
-- M92  - Set axis_steps_per_unit - same syntax as G92
+- M92  - Set axisStepsPerMM - same syntax as G92
+- M104 S<temp> T<extruder> P1 F1 - Set temperature without wait. P1 = wait for moves to finish, F1 = beep when temp. reached first time
+- M105 X0 - Get temperatures. If X0 is added, the raw analog values are also written.
 - M112 - Emergency kill
 - M115- Capabilities string
+- M116 - Wait for all temperatures in a +/- 1 degree range
 - M117 <message> - Write message in status row on lcd
 - M119 - Report endstop status
-- M140 - Set bed target temp
+- M140 S<temp> F1 - Set bed target temp, F1 makes a beep when temperature is reached the first time
 - M190 - Wait for bed current temp to reach target temp.
 - M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 - M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000)
@@ -97,7 +105,13 @@ Custom M Codes
 - M232 - Read and reset max. advance values
 - M233 X<AdvanceK> Y<AdvanceL> - Set temporary advance K-value to X and linear term advanceL to Y
 - M251 Measure Z steps from homing stop (Delta printers). S0 - Reset, S1 - Print, S2 - Store to Z length (also EEPROM if enabled)
-- M303 P<extruder/bed> S<drucktermeratur> Autodetect pid values. Use P<NUM_EXTRUDER> for heated bed.
+- M280 S<mode> - Set ditto printing mode. mode: 0 = off, 1 = on
+- M300 S<Frequency> P<DurationMillis> play frequency
+- M303 P<extruder/bed> S<drucktermeratur> X0 - Autodetect pid values. Use P<NUM_EXTRUDER> for heated bed. X0 saves result in EEPROM.
+- M320 - Activate autolevel
+- M321 - Deactivate autolevel
+- M322 - Reset autolevel matrix
+- M340 P<servoId> S<pulseInUS> : servoID = 0..3, Servos are controlled by a pulse with normally between 500 and 2500 with 1500ms in center position. 0 turns servo off.
 - M350 S<mstepsAll> X<mstepsX> Y<mstepsY> Z<mstepsZ> E<mstepsE0> P<mstespE1> : Set microstepping on RAMBO board
 - M400 - Wait until move buffers empty.
 - M401 - Store x, y and z position.

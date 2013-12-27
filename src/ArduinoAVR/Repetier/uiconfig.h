@@ -28,7 +28,7 @@ of the firmware at the same time. You have to disable some features to gain the
 ram needed. What should work:
 - No sd card - the sd card code is quite large.
 - No keys attached - The longest part is the menu handling.
-- EEPROM_MODE 0 and USE_OPS 0.
+- EEPROM_MODE 0 .
 
 Currently supported hardware:
 
@@ -72,6 +72,7 @@ works, use the ascii charset 0 as fallback. Not the nicest for everything but wo
 */
 #ifndef BEEPER_TYPE
 #define BEEPER_TYPE 1
+#define BEEPER_TYPE_INVERTING false
 #endif
 
 #if BEEPER_TYPE==1 && !defined(BEEPER_PIN)
@@ -93,6 +94,7 @@ What display type do you use?
 4 = Use the slower LiquiedCrystal library bundled with arduino.
     IMPORTANT: You need to uncomment the LiquidCrystal include in Repetier.pde for it to work.
                If you have Sanguino and want to use the library, you need to have Arduino 023 or older. (13.04.2012)
+5 = U8G supported display
 */
 #define UI_DISPLAY_TYPE 1
 
@@ -155,9 +157,9 @@ Define the pin
 #define UI_DISPLAY_D7_PIN _BV(9)*/
 
 #else // Direct display connections
-#define UI_DISPLAY_RS_PIN		70//63		// PINK.1, 88, D_RS
+#define UI_DISPLAY_RS_PIN		70		// PINK.1, 88, D_RS
 #define UI_DISPLAY_RW_PIN		-1
-#define UI_DISPLAY_ENABLE_PIN	        71//		// PINK.3, 86, D_E
+#define UI_DISPLAY_ENABLE_PIN	        71		// PINK.3, 86, D_E
 #define UI_DISPLAY_D0_PIN		72		// PINF.5, 92, D_D4
 #define UI_DISPLAY_D1_PIN		73		// PINK.2, 87, D_D5
 #define UI_DISPLAY_D2_PIN		74		// PINL.5, 40, D_D6
@@ -301,6 +303,7 @@ const int matrixActions[] PROGMEM = UI_MATRIX_ACTIONS;
 
 void ui_init_keys() {
 #if UI_HAS_KEYS!=0
+  //UI_KEYS_INIT_CLICKENCODER_LOW(33,31); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
   UI_KEYS_INIT_CLICKENCODER_LOW(76,77); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
   UI_KEYS_INIT_BUTTON_LOW(78);
   UI_KEYS_INIT_BUTTON_LOW(KILL_PIN);
@@ -317,15 +320,16 @@ void ui_init_keys() {
 }
 void ui_check_keys(int &action) {
 #if UI_HAS_KEYS!=0
-
  UI_KEYS_CLICKENCODER_LOW_REV(76,77); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
  UI_KEYS_BUTTON_LOW(78,UI_ACTION_OK); // push button, connects gnd to pin
  UI_KEYS_BUTTON_LOW(KILL_PIN,UI_ACTION_KILL); // push button, connects gnd to pin
 
-// UI_KEYS_BUTTON_LOW(5,UI_ACTION_NEXT); // push button, connects gnd to pin
-// UI_KEYS_BUTTON_LOW(6,UI_ACTION_PREVIOUS); // push button, connects gnd to pin
-// UI_KEYS_BUTTON_LOW(11,UI_ACTION_BACK); // push button, connects gnd to pin
-// UI_KEYS_BUTTON_LOW(42,UI_ACTION_SD_PRINT ); // push button, connects gnd to pin
+ //UI_KEYS_CLICKENCODER_LOW_REV(33,31); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
+ //UI_KEYS_BUTTON_LOW(4,UI_ACTION_OK); // push button, connects gnd to pin
+ //UI_KEYS_BUTTON_LOW(5,UI_ACTION_NEXT); // push button, connects gnd to pin
+ //UI_KEYS_BUTTON_LOW(6,UI_ACTION_PREVIOUS); // push button, connects gnd to pin
+ //UI_KEYS_BUTTON_LOW(11,UI_ACTION_BACK); // push button, connects gnd to pin
+ //UI_KEYS_BUTTON_LOW(42,UI_ACTION_SD_PRINT ); // push button, connects gnd to pin
 //  UI_KEYS_CLICKENCODER_LOW_REV(47,45); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
 //  UI_KEYS_BUTTON_LOW(43,UI_ACTION_OK); // push button, connects gnd to pin
 #endif
@@ -334,7 +338,7 @@ inline void ui_check_slow_encoder() {
 #if defined(UI_HAS_I2C_KEYS) && UI_HAS_KEYS!=0
 #if UI_DISPLAY_I2C_CHIPTYPE==0
   HAL::i2cStartWait(UI_I2C_KEY_ADDRESS+I2C_READ);
-  byte keymask = HAL::i2cReadNak(); // Read current key mask
+  uint8_t keymask = HAL::i2cReadNak(); // Read current key mask
 #endif
 #if UI_DISPLAY_I2C_CHIPTYPE==1
     HAL::i2cStartWait(UI_DISPLAY_I2C_ADDRESS+I2C_WRITE);
@@ -353,7 +357,7 @@ void ui_check_slow_keys(int &action) {
 #if defined(UI_HAS_I2C_KEYS) && UI_HAS_KEYS!=0
 #if UI_DISPLAY_I2C_CHIPTYPE==0
     HAL::i2cStartWait(UI_I2C_KEY_ADDRESS+I2C_READ);
-    byte keymask = HAL::i2cReadNak(); // Read current key mask
+    uint8_t keymask = HAL::i2cReadNak(); // Read current key mask
 #endif
 #if UI_DISPLAY_I2C_CHIPTYPE==1
     HAL::i2cStartWait(UI_DISPLAY_I2C_ADDRESS+I2C_WRITE);

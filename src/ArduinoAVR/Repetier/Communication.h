@@ -25,6 +25,7 @@
 class Com
 {
     public:
+FSTRINGVAR(tDebug)
 FSTRINGVAR(tFirmware)
 FSTRINGVAR(tOk)
 FSTRINGVAR(tNewline)
@@ -36,9 +37,9 @@ FSTRINGVAR(tWarning)
 FSTRINGVAR(tResend)
 FSTRINGVAR(tEcho)
 FSTRINGVAR(tOkSpace)
-FSTRINGVAR(tNoEEPROMSupport)
 FSTRINGVAR(tWrongChecksum)
 FSTRINGVAR(tMissingChecksum)
+FSTRINGVAR(tFormatError)
 FSTRINGVAR(tDonePrinting)
 FSTRINGVAR(tX)
 FSTRINGVAR(tY)
@@ -65,6 +66,7 @@ FSTRINGVAR(tUnknownCommand)
 FSTRINGVAR(tFreeRAM)
 FSTRINGVAR(tXColon)
 FSTRINGVAR(tSlash)
+FSTRINGVAR(tSpaceXColon)
 FSTRINGVAR(tSpaceYColon)
 FSTRINGVAR(tSpaceZColon)
 FSTRINGVAR(tSpaceEColon)
@@ -72,7 +74,9 @@ FSTRINGVAR(tTColon)
 FSTRINGVAR(tSpaceBColon)
 FSTRINGVAR(tSpaceAtColon)
 FSTRINGVAR(tSpaceT)
+FSTRINGVAR(tSpaceRaw)
 FSTRINGVAR(tSpaceAt)
+FSTRINGVAR(tSpaceBAtColon)
 FSTRINGVAR(tColon)
 FSTRINGVAR(tSpeedMultiply);
 FSTRINGVAR(tFlowMultiply);
@@ -106,32 +110,34 @@ FSTRINGVAR(tZJerkColon)
 FSTRINGVAR(tLinearStepsColon)
 FSTRINGVAR(tQuadraticStepsColon)
 FSTRINGVAR(tCommaSpeedEqual)
-FSTRINGVAR(tOPSDisabled)
-FSTRINGVAR(tOPSClassicMode)
-FSTRINGVAR(tOPSFastMode)
-FSTRINGVAR(tMinDistance)
-FSTRINGVAR(tRetractEqual)
-FSTRINGVAR(tBacklashEqual)
-FSTRINGVAR(tMoveAfter)
-FSTRINGVAR(tRetrSteps)
-FSTRINGVAR(tPushBackSteps)
-FSTRINGVAR(tMoveAfterSteps)
 FSTRINGVAR(tLinearLColon)
 FSTRINGVAR(tQuadraticKColon)
+FSTRINGVAR(tEEPROMUpdated)
 
 #if DRIVE_SYSTEM==3
 FSTRINGVAR(tMeasurementReset)
 FSTRINGVAR(tMeasureDeltaSteps)
 FSTRINGVAR(tMeasureDelta)
 FSTRINGVAR(tMeasureOriginReset)
-FSTRINGVAR(tEEPROMUpdated)
+FSTRINGVAR(tMeasurementAbortedOrigin)
 FSTRINGVAR(tInvalidDeltaCoordinate)
 FSTRINGVAR(tLevelingCalc)
 FSTRINGVAR(tTower1)
 FSTRINGVAR(tTower2)
 FSTRINGVAR(tTower3)
+FSTRINGVAR(tDeltaAlphaA)
+FSTRINGVAR(tDeltaAlphaB)
+FSTRINGVAR(tDeltaAlphaC)
+FSTRINGVAR(tDeltaRadiusCorrectionA)
+FSTRINGVAR(tDeltaRadiusCorrectionB)
+FSTRINGVAR(tDeltaRadiusCorrectionC)
 FSTRINGVAR(tDBGDeltaNoMoveinDSegment)
 #endif // DRIVE_SYSTEM
+#if DRIVE_SYSTEM==4
+FSTRINGVAR(tInvalidDeltaCoordinate)
+FSTRINGVAR(tDBGDeltaNoMoveinDSegment)
+FSTRINGVAR(tEPRDiagonalRodLength)
+#endif
 #ifdef DEBUG_GENERIC
 FSTRINGVAR(tGenTemp)
 #endif // DEBUG_GENERICFSTRINGVALUE(Com::,"")
@@ -191,19 +197,50 @@ FSTRINGVAR(tDBGDeltaMaxDS)
 FSTRINGVAR(tDBGDeltaStepsPerSegment)
 FSTRINGVAR(tDBGDeltaVirtualAxisSteps)
 #endif
-#ifdef STEP_COUNTER
-FSTRINGVAR(tDBGDeltaMeasurerDelta)
-FSTRINGVAR(tDBGDeltaMeasurementReset)
-FSTRINGVAR(tDBGDeltaMeasuredOriginSet)
-#endif // STEP_COUNTER
+#ifdef DEBUG_STEPCOUNT
+FSTRINGVAR(tDBGMissedSteps)
+#endif
+#if FEATURE_Z_PROBE
+FSTRINGVAR(tZProbe)
+FSTRINGVAR(tZProbeState)
+FSTRINGVAR(tZProbeStartScript)
+FSTRINGVAR(tZProbeEndScript)
+FSTRINGVAR(tHitZProbe)
+FSTRINGVAR(tZProbeAverage)
+FSTRINGVAR(tZProbeZReset)
+FSTRINGVAR(tAutolevelReset)
+#endif
+FSTRINGVAR(tAutolevelEnabled)
+FSTRINGVAR(tAutolevelDisabled)
+#if MAX_HARDWARE_ENDSTOP_Z
+FSTRINGVAR(tZProbeFailed)
+FSTRINGVAR(tZProbeMax)
+FSTRINGVAR(tZProbePrinterHeight)
+#endif
 
 #ifdef WAITING_IDENTIFIER
 FSTRINGVAR(tWait)
 #endif // WAITING_IDENTIFIER
 
 #if EEPROM_MODE==0
-FSTRINGVAR(tNoEEPROMSupport,"No EEPROM support compiled.\r\n")
+FSTRINGVAR(tNoEEPROMSupport)
 #else
+#if FEATURE_Z_PROBE
+FSTRINGVAR(tZProbeHeight)
+FSTRINGVAR(tZProbeOffsetX)
+FSTRINGVAR(tZProbeOffsetY)
+FSTRINGVAR(tZProbeSpeed)
+FSTRINGVAR(tZProbeSpeedXY)
+FSTRINGVAR(tZProbeX1)
+FSTRINGVAR(tZProbeY1)
+FSTRINGVAR(tZProbeX2)
+FSTRINGVAR(tZProbeY2)
+FSTRINGVAR(tZProbeX3)
+FSTRINGVAR(tZProbeY3)
+#endif
+#if FEATURE_AUTOLEVEL
+FSTRINGVAR(tAutolevelActive)
+#endif
 FSTRINGVAR(tConfigStoredEEPROM)
 FSTRINGVAR(tConfigLoadedEEPROM)
 FSTRINGVAR(tEPRConfigResetDefaults)
@@ -218,17 +255,7 @@ FSTRINGVAR(tEPRFilamentPrinted)
 FSTRINGVAR(tEPRPrinterActive)
 FSTRINGVAR(tEPRMaxInactiveTime)
 FSTRINGVAR(tEPRStopAfterInactivty)
-FSTRINGVAR(tEPRXStepsPerMM)
-FSTRINGVAR(tEPRYStepsPerMM)
-FSTRINGVAR(tEPRZStepsPerMM)
-FSTRINGVAR(tEPRXMaxFeedrate)
-FSTRINGVAR(tEPRYMaxFeedrate)
-FSTRINGVAR(tEPRZMaxFeedrate)
-FSTRINGVAR(tEPRXHomingFeedrate)
-FSTRINGVAR(tEPRYHomingFeedrate)
-FSTRINGVAR(tEPRZHomingFeedrate)
 FSTRINGVAR(tEPRMaxJerk)
-FSTRINGVAR(tEPRMaxZJerk)
 FSTRINGVAR(tEPRXHomePos)
 FSTRINGVAR(tEPRYHomePos)
 FSTRINGVAR(tEPRZHomePos)
@@ -238,12 +265,32 @@ FSTRINGVAR(tEPRZMaxLength)
 FSTRINGVAR(tEPRXBacklash)
 FSTRINGVAR(tEPRYBacklash)
 FSTRINGVAR(tEPRZBacklash)
+FSTRINGVAR(tEPRZAcceleration)
+FSTRINGVAR(tEPRZTravelAcceleration)
+FSTRINGVAR(tEPRZStepsPerMM)
+FSTRINGVAR(tEPRZMaxFeedrate)
+FSTRINGVAR(tEPRZHomingFeedrate)
+#if DRIVE_SYSTEM!=3
+FSTRINGVAR(tEPRMaxZJerk)
+FSTRINGVAR(tEPRXStepsPerMM)
+FSTRINGVAR(tEPRYStepsPerMM)
+FSTRINGVAR(tEPRXMaxFeedrate)
+FSTRINGVAR(tEPRYMaxFeedrate)
+FSTRINGVAR(tEPRXHomingFeedrate)
+FSTRINGVAR(tEPRYHomingFeedrate)
 FSTRINGVAR(tEPRXAcceleration)
 FSTRINGVAR(tEPRYAcceleration)
-FSTRINGVAR(tEPRZAcceleration)
 FSTRINGVAR(tEPRXTravelAcceleration)
 FSTRINGVAR(tEPRYTravelAcceleration)
-FSTRINGVAR(tEPRZTravelAcceleration)
+#else
+FSTRINGVAR(tEPRDiagonalRodLength)
+FSTRINGVAR(tEPRHorizontalRadius)
+FSTRINGVAR(tEPRSegmentsPerSecondPrint)
+FSTRINGVAR(tEPRSegmentsPerSecondTravel)
+FSTRINGVAR(tEPRTowerXOffset)
+FSTRINGVAR(tEPRTowerYOffset)
+FSTRINGVAR(tEPRTowerZOffset)
+#endif
 FSTRINGVAR(tEPROPSMode)
 FSTRINGVAR(tEPROPSMoveAfter)
 FSTRINGVAR(tEPROPSMinDistance)
@@ -314,18 +361,20 @@ static void printF(FSTRINGPARAM(text),int value);
 static void printF(FSTRINGPARAM(text),const char *msg);
 static void printF(FSTRINGPARAM(text),long value);
 static void printF(FSTRINGPARAM(text),unsigned long value);
-static void printF(FSTRINGPARAM(text),float value,byte digits=2);
+static void printF(FSTRINGPARAM(text),float value,uint8_t digits=2);
 static void printFLN(FSTRINGPARAM(text),int value);
 static void printFLN(FSTRINGPARAM(text),long value);
 static void printFLN(FSTRINGPARAM(text),unsigned long value);
 static void printFLN(FSTRINGPARAM(text),const char *msg);
-static void printFLN(FSTRINGPARAM(text),float value,byte digits=2);
+static void printFLN(FSTRINGPARAM(text),float value,uint8_t digits=2);
+static void printArrayFLN(FSTRINGPARAM(text),float *arr,uint8_t n=4,uint8_t digits=2);
+static void printArrayFLN(FSTRINGPARAM(text),long *arr,uint8_t n=4);
 static void print(long value);
 static inline void print(unsigned long value) {printNumber(value);}
 static inline void print(int value) {print((long)value);}
 static void print(const char *text);
 static inline void print(char c) {HAL::serialWriteByte(c);}
-static void printFloat(float number, byte digits);
+static void printFloat(float number, uint8_t digits);
 static inline void println() {HAL::serialWriteByte('\r');HAL::serialWriteByte('\n');}
     protected:
     private:

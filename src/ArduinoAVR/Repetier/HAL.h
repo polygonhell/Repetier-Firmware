@@ -42,11 +42,14 @@
 #define pgm_read_byte(x) (*(char*)x)
 #endif
 
+#define PACK
+
 #define FSTRINGVALUE(var,value) const char var[] PROGMEM = value;
 #define FSTRINGVAR(var) static const char var[] PROGMEM;
 #define FSTRINGPARAM(var) PGM_P var
 
 #include <avr/eeprom.h>
+#include <avr/wdt.h>
 
 #define ANALOG_PRESCALER _BV(ADPS0)|_BV(ADPS1)|_BV(ADPS2)
 
@@ -75,7 +78,7 @@
 #define	SET_OUTPUT(IO)  pinMode(IO, OUTPUT)
 #endif
 
-#define BEGIN_INTERRUPT_PROTECTED {byte sreg=SREG;__asm volatile( "cli" ::: "memory" );
+#define BEGIN_INTERRUPT_PROTECTED {uint8_t sreg=SREG;__asm volatile( "cli" ::: "memory" );
 #define END_INTERRUPT_PROTECTED SREG=sreg;}
 #define ESCAPE_INTERRUPT_PROTECTED SREG=sreg;
 
@@ -99,6 +102,7 @@ typedef unsigned int speed_t;
 typedef unsigned long ticks_t;
 typedef unsigned long millis_t;
 
+#define FAST_INTEGER_SQRT
 
 #ifndef EXTERNALSERIAL
 // Implement serial communication for one stream only!
@@ -127,19 +131,27 @@ typedef unsigned long millis_t;
 
 #define SERIAL_BUFFER_SIZE 128
 #define SERIAL_BUFFER_MASK 127
+#define SERIAL_TX_BUFFER_SIZE 64
+#define SERIAL_TX_BUFFER_MASK 63
 
 struct ring_buffer
 {
     unsigned char buffer[SERIAL_BUFFER_SIZE];
-    volatile int head;
-    volatile int tail;
+    volatile uint8_t head;
+    volatile uint8_t tail;
+};
+struct ring_buffer_tx
+{
+    unsigned char buffer[SERIAL_TX_BUFFER_SIZE];
+    volatile uint8_t head;
+    volatile uint8_t tail;
 };
 
 class RFHardwareSerial : public Print
 {
 public:
     ring_buffer *_rx_buffer;
-    ring_buffer *_tx_buffer;
+    ring_buffer_tx *_tx_buffer;
     volatile uint8_t *_ubrrh;
     volatile uint8_t *_ubrrl;
     volatile uint8_t *_ucsra;
@@ -151,7 +163,7 @@ public:
     uint8_t _udrie;
     uint8_t _u2x;
 public:
-    RFHardwareSerial(ring_buffer *rx_buffer, ring_buffer *tx_buffer,
+    RFHardwareSerial(ring_buffer *rx_buffer, ring_buffer_tx *tx_buffer,
                      volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
                      volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
                      volatile uint8_t *udr,
@@ -169,10 +181,11 @@ public:
 #endif
     using Print::write; // pull in write(str) and write(buf, size) from Print
     operator bool();
+    int outputUnused(void); // Used for output in interrupts
 };
 extern RFHardwareSerial RFSerial;
 #define RFSERIAL RFSerial
-extern ring_buffer tx_buffer;
+//extern ring_buffer tx_buffer;
 #define WAIT_OUT_EMPTY while(tx_buffer.head != tx_buffer.tail) {}
 #else
 #define RFSERIAL Serial
@@ -198,7 +211,102 @@ class HAL
 public:
     HAL();
     virtual ~HAL();
+    static inline void hwSetup(void)
+    {}
     // return val'val
+    static uint16_t integerSqrt(long a);
+    /** \brief Optimized division
+
+    Normally the C compiler will compute a long/long division, which takes ~670 Ticks.
+    This version is optimized for a 16 bit dividend and recognises the special cases
+    of a 24 bit and 16 bit dividend, which offen, but not always occur in updating the
+    interval.
+    */
+    static inline long Div4U2U(unsigned long a,unsigned int b)
+    {
+#if CPU_ARCH==ARCH_AVR
+        // r14/r15 remainder
+        // r16 counter
+        __asm__ __volatile__ (
+            "clr r14 \n\t"
+            "sub r15,r15 \n\t"
+            "tst %D0 \n\t"
+            "brne do32%= \n\t"
+            "tst %C0 \n\t"
+            "breq donot24%= \n\t"
+            "rjmp do24%= \n\t"
+            "donot24%=:" "ldi r16,17 \n\t" // 16 Bit divide
+            "d16u_1%=:" "rol %A0 \n\t"
+            "rol %B0 \n\t"
+            "dec r16 \n\t"
+            "brne	d16u_2%= \n\t"
+            "rjmp end%= \n\t"
+            "d16u_2%=:" "rol r14 \n\t"
+            "rol r15 \n\t"
+            "sub r14,%A2 \n\t"
+            "sbc r15,%B2 \n\t"
+            "brcc	d16u_3%= \n\t"
+            "add r14,%A2 \n\t"
+            "adc r15,%B2 \n\t"
+            "clc \n\t"
+            "rjmp d16u_1%= \n\t"
+            "d16u_3%=:" "sec \n\t"
+            "rjmp d16u_1%= \n\t"
+            "do32%=:" // divide full 32 bit
+            "rjmp do32B%= \n\t"
+            "do24%=:" // divide 24 bit
+
+            "ldi r16,25 \n\t" // 24 Bit divide
+            "d24u_1%=:" "rol %A0 \n\t"
+            "rol %B0 \n\t"
+            "rol %C0 \n\t"
+            "dec r16 \n\t"
+            "brne	d24u_2%= \n\t"
+            "rjmp end%= \n\t"
+            "d24u_2%=:" "rol r14 \n\t"
+            "rol r15 \n\t"
+            "sub r14,%A2 \n\t"
+            "sbc r15,%B2 \n\t"
+            "brcc	d24u_3%= \n\t"
+            "add r14,%A2 \n\t"
+            "adc r15,%B2 \n\t"
+            "clc \n\t"
+            "rjmp d24u_1%= \n\t"
+            "d24u_3%=:" "sec \n\t"
+            "rjmp d24u_1%= \n\t"
+
+            "do32B%=:" // divide full 32 bit
+
+            "ldi r16,33 \n\t" // 32 Bit divide
+            "d32u_1%=:" "rol %A0 \n\t"
+            "rol %B0 \n\t"
+            "rol %C0 \n\t"
+            "rol %D0 \n\t"
+            "dec r16 \n\t"
+            "brne	d32u_2%= \n\t"
+            "rjmp end%= \n\t"
+            "d32u_2%=:" "rol r14 \n\t"
+            "rol r15 \n\t"
+            "sub r14,%A2 \n\t"
+            "sbc r15,%B2 \n\t"
+            "brcc	d32u_3%= \n\t"
+            "add r14,%A2 \n\t"
+            "adc r15,%B2 \n\t"
+            "clc \n\t"
+            "rjmp d32u_1%= \n\t"
+            "d32u_3%=:" "sec \n\t"
+            "rjmp d32u_1%= \n\t"
+
+            "end%=:" // end
+            :"=&r"(a)
+            :"0"(a),"r"(b)
+            :"r14","r15","r16"
+        );
+        return a;
+#else
+        return a/b;
+#endif
+    }
     static inline unsigned long U16SquaredToU32(unsigned int val)
     {
         long res;
@@ -324,15 +432,15 @@ public:
         return ((long)a*b)>>16;
 #endif
     }
-    static inline void digitalWrite(byte pin,byte value)
+    static inline void digitalWrite(uint8_t pin,uint8_t value)
     {
         ::digitalWrite(pin,value);
     }
-    static inline byte digitalRead(byte pin)
+    static inline uint8_t digitalRead(uint8_t pin)
     {
         return ::digitalRead(pin);
     }
-    static inline void pinMode(byte pin,byte mode)
+    static inline void pinMode(uint8_t pin,uint8_t mode)
     {
         ::pinMode(pin,mode);
     }
@@ -345,41 +453,43 @@ public:
     {
         ::delay(delayMs);
     }
-    static inline void tone(byte pin,int duration) {
+    static inline void tone(uint8_t pin,int duration)
+    {
         ::tone(pin,duration);
     }
-    static inline void noTone(byte pin) {
+    static inline void noTone(uint8_t pin)
+    {
         ::noTone(pin);
     }
-    static inline void epr_set_byte(unsigned int pos,byte value)
+    static inline void eprSetByte(unsigned int pos,uint8_t value)
     {
         eeprom_write_byte((unsigned char *)(EEPROM_OFFSET+pos), value);
     }
-    static inline void epr_set_int(unsigned int pos,int value)
+    static inline void eprSetInt16(unsigned int pos,int16_t value)
     {
         eeprom_write_word((unsigned int*)(EEPROM_OFFSET+pos),value);
     }
-    static inline void epr_set_long(unsigned int pos,long value)
+    static inline void eprSetInt32(unsigned int pos,int32_t value)
     {
-        eeprom_write_dword((unsigned long*)(EEPROM_OFFSET+pos),value);
+        eeprom_write_dword((uint32_t*)(EEPROM_OFFSET+pos),value);
     }
-    static inline void epr_set_float(unsigned int pos,float value)
+    static inline void eprSetFloat(unsigned int pos,float value)
     {
         eeprom_write_block(&value,(void*)(EEPROM_OFFSET+pos), 4);
     }
-    static inline byte epr_get_byte(unsigned int pos)
+    static inline uint8_t eprGetByte(unsigned int pos)
     {
         return eeprom_read_byte ((unsigned char *)(EEPROM_OFFSET+pos));
     }
-    static inline int epr_get_int(unsigned int pos)
+    static inline int16_t eprGetInt16(unsigned int pos)
     {
-        return eeprom_read_word((unsigned int *)(EEPROM_OFFSET+pos));
+        return eeprom_read_word((uint16_t *)(EEPROM_OFFSET+pos));
     }
-    static inline long epr_get_long(unsigned int pos)
+    static inline int32_t eprGetInt32(unsigned int pos)
     {
-        return eeprom_read_dword((unsigned long*)(EEPROM_OFFSET+pos));
+        return eeprom_read_dword((uint32_t*)(EEPROM_OFFSET+pos));
     }
-    static inline float epr_get_float(unsigned int pos)
+    static inline float eprGetFloat(unsigned int pos)
     {
         float v;
         eeprom_read_block(&v,(void *)(EEPROM_OFFSET+pos),4); // newer gcc have eeprom_read_block but not arduino 22
@@ -407,9 +517,9 @@ public:
     }
     static inline bool serialByteAvailable()
     {
-        return RFSERIAL.available();
+        return RFSERIAL.available()>0;
     }
-    static inline byte serialReadByte()
+    static inline uint8_t serialReadByte()
     {
         return RFSERIAL.read();
     }
@@ -427,25 +537,50 @@ public:
     static void resetHardware();
 
     // SPI related functions
-
-    static inline void spiInit(byte spiRate)
+    static void spiBegin()
     {
+        SET_INPUT(MISO_PIN);
+        SET_OUTPUT(MOSI_PIN);
+        SET_OUTPUT(SCK_PIN);
+        // SS must be in output mode even it is not chip select
+        SET_OUTPUT(SDSS);
+#if SDSSORIG >- 1
+        SET_OUTPUT(SDSSORIG);
+#endif
+        // set SS high - may be chip select for another SPI device
+#if SET_SPI_SS_HIGH
+        WRITE(SDSS, HIGH);
+#endif  // SET_SPI_SS_HIGH
+    }
+    static inline void spiInit(uint8_t spiRate)
+    {
+        spiRate = spiRate > 12 ? 6 : spiRate/2;
+        SET_OUTPUT(SS);
+        WRITE(SS,HIGH);
+        SET_OUTPUT(SCK);
+        SET_OUTPUT(MOSI_PIN);
+        SET_INPUT(MISO_PIN);
+#ifdef	PRR
+        PRR &= ~(1<<PRSPI);
+#elif defined PRR0
+        PRR0 &= ~(1<<PRSPI);
+#endif
         // See avr processor documentation
         SPCR = (1 << SPE) | (1 << MSTR) | (spiRate >> 1);
         SPSR = spiRate & 1 || spiRate == 6 ? 0 : 1 << SPI2X;
 
     }
-    static inline byte spiReceive()
+    static inline uint8_t spiReceive(uint8_t send=0xff)
     {
-        SPDR = 0XFF;
+        SPDR = send;
         while (!(SPSR & (1 << SPIF)));
         return SPDR;
     }
-    static inline void spiReadBlock(byte*buf,uint16_t nbyte)
+    static inline void spiReadBlock(uint8_t*buf,size_t nbyte)
     {
         if (nbyte-- == 0) return;
         SPDR = 0XFF;
-        for (uint16_t i = 0; i < nbyte; i++)
+        for (size_t i = 0; i < nbyte; i++)
         {
             while (!(SPSR & (1 << SPIF)));
             buf[i] = SPDR;
@@ -454,11 +589,30 @@ public:
         while (!(SPSR & (1 << SPIF)));
         buf[nbyte] = SPDR;
     }
-    static inline void spiSend(byte b)
+    static inline void spiSend(uint8_t b)
     {
         SPDR = b;
         while (!(SPSR & (1 << SPIF)));
     }
+    static inline void spiSend(const uint8_t* buf , size_t n)
+    {
+        if (n == 0) return;
+        SPDR = buf[0];
+        if (n > 1)
+        {
+            uint8_t b = buf[1];
+            size_t i = 2;
+            while (1)
+            {
+                while (!(SPSR & (1 << SPIF)));
+                SPDR = b;
+                if (i == n) break;
+                b = buf[i++];
+            }
+        }
+        while (!(SPSR & (1 << SPIF)));
+    }
+
     static inline __attribute__((always_inline))
     void spiSendBlock(uint8_t token, const uint8_t* buf)
     {
@@ -482,8 +636,57 @@ public:
     static unsigned char i2cWrite( unsigned char data );
     static unsigned char i2cReadAck(void);
     static unsigned char i2cReadNak(void);
+
+    // Watchdog support
+
+    inline static void startWatchdog()
+    {
+        wdt_enable(WDTO_1S);
+    };
+    inline static void stopWatchdog()
+    {
+        wdt_disable();
+    }
+    inline static void pingWatchdog()
+    {
+        wdt_reset();
+    };
+    inline static float maxExtruderTimerFrequency()
+    {
+        return (float)F_CPU/TIMER0_PRESCALE;
+    }
+#if FEATURE_SERVO
+    static unsigned int servoTimings[4];
+    static void servoMicroseconds(uint8_t servo,int ms);
+#endif
+    static void analogStart();
 protected:
 private:
 };
-
+/*#if MOTHERBOARD==6 || MOTHERBOARD==62 || MOTHERBOARD==7
+#if MOTHERBOARD!=7
+#define SIMULATE_PWM
+#endif
+#define EXTRUDER_TIMER_VECTOR TIMER2_COMPA_vect
+#define EXTRUDER_OCR OCR2A
+#define EXTRUDER_TCCR TCCR2A
+#define EXTRUDER_TIMSK TIMSK2
+#define EXTRUDER_OCIE OCIE2A
+#define PWM_TIMER_VECTOR TIMER2_COMPB_vect
+#define PWM_OCR OCR2B
+#define PWM_TCCR TCCR2B
+#define PWM_TIMSK TIMSK2
+#define PWM_OCIE OCIE2B
+#else*/
+#define EXTRUDER_TIMER_VECTOR TIMER0_COMPA_vect
+#define EXTRUDER_OCR OCR0A
+#define EXTRUDER_TCCR TCCR0A
+#define EXTRUDER_TIMSK TIMSK0
+#define EXTRUDER_OCIE OCIE0A
+#define PWM_TIMER_VECTOR TIMER0_COMPB_vect
+#define PWM_OCR OCR0B
+#define PWM_TCCR TCCR0A
+#define PWM_TIMSK TIMSK0
+#define PWM_OCIE OCIE0B
+//#endif
 #endif // HAL_H
